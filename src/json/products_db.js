@@ -40,7 +40,7 @@ const products_db = [
   },
   {
     key: "Harry-Part1",
-    title: "Harry Potter and the Half-Blood Prince",
+    title: "Reliquias de la Muerte Parte 1",
     qty: 1,
     cover: "https://i.imgur.com/6JWdXO6.jpeg",
     size: "S",
@@ -54,7 +54,7 @@ const products_db = [
   },
   {
     key: "Harry-Part2",
-    title: "Harry Potter and the Half-Blood Prince",
+    title: "Reliquias de la Muerte Parte 2",
     qty: 1,
     cover: "https://i.imgur.com/BI0xSVd.jpeg",
     size: "S",

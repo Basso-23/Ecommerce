@@ -54,7 +54,7 @@ const Inicio = ({ cart, setCart, render, setRender }) => {
       >
         {products.map((item) => (
           <div key={item.key} className="mt-10">
-            {/* Image */}
+            {/* Image with dynamic routing */}
             <Link
               href={{
                 pathname: "/product/[id]",
