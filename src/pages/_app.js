@@ -1,6 +1,6 @@
 import "@/styles/globals.css";
 import Navbar from "@/components/Navbar";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 
 const App = ({ Component, pageProps, router }) => {
   const [cart, setCart] = useState([]);

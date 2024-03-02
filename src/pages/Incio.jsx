@@ -1,14 +1,9 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 import { products_db } from "@/json/products_db";
 import Buttons from "@/components/Buttons";
-import Mycart from "@/components/Mycart";
 
 const Inicio = ({ cart, setCart, render, setRender }) => {
   const [products, setProducts] = useState(products_db);
-
-  useEffect(() => {
-    console.log(cart);
-  }, [cart]);
 
   //Importante: Valor unico del JSON: key
   //JSON que esta cambiando: cart

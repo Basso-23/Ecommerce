@@ -52,6 +52,7 @@ const Mycart = ({ cart, setCart, render, setRender }) => {
     }
   };
   return (
+    //Carrito container
     <section className=" fixed w-[400px] h-screen bg-black left-0 top-0 z-[60] flex flex-col overflow-x-auto gap-10 items-center">
       {cart
         .map((item) => (
