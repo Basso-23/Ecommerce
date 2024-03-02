@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { products_db } from "@/json/products_db";
 import Buttons from "@/components/Buttons";
+import Link from "next/link";
 
 const Inicio = ({ cart, setCart, render, setRender }) => {
   const [products, setProducts] = useState(products_db);
@@ -54,10 +55,17 @@ const Inicio = ({ cart, setCart, render, setRender }) => {
         {products.map((item) => (
           <div key={item.key} className="mt-10">
             {/* Image */}
-            <div
-              style={{ backgroundImage: `url(${item.cover})` }}
-              className="aspect-[10/14.8] w-[300px] bg-cover bg-no-repeat mb-2"
-            ></div>
+            <Link
+              href={{
+                pathname: "/product/[id]",
+                query: { id: item.key },
+              }}
+            >
+              <div
+                style={{ backgroundImage: `url(${item.cover})` }}
+                className="aspect-[10/14.8] w-[300px] bg-cover bg-no-repeat mb-2"
+              ></div>
+            </Link>
             {/* Price */}
             <div className="mb-2">${item.price.toFixed(2)}</div>
             {/* Sizes */}
