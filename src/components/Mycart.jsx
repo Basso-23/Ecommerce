@@ -1,7 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
 import Buttons from "@/components/Buttons";
 
-const Mycart = ({ cart, setCart, render, setRender }) => {
+const Mycart = ({
+  cart,
+  setCart,
+  render,
+  setRender,
+  userState,
+  setUserState,
+}) => {
   //Importante: Valor unico del JSON: key
   //JSON que esta cambiando: cart
   //Cambiar estas dos cosas de ser necesario
@@ -89,16 +96,24 @@ const Mycart = ({ cart, setCart, render, setRender }) => {
                 <div className=" text-white text-center mt-4">{item.qty}</div>
                 <div className="flex gap-6 max-h-10 w-24 mt-4 mx-auto">
                   {/* Disminuir qty */}
-                  <Buttons name={"-"} action={minusQty} data={item.key} />
+                  <Buttons
+                    name={"-"}
+                    action={userState ? minusQty : false}
+                    data={item.key}
+                  />
                   {/* Aumentar qty */}
-                  <Buttons name={"+"} action={plusQty} data={item.key} />
+                  <Buttons
+                    name={"+"}
+                    action={userState ? plusQty : false}
+                    data={item.key}
+                  />
                 </div>
 
                 <div className=" w-full mt-4">
                   {/* Delete from cart */}
                   <Buttons
                     name={"Delete"}
-                    action={deleteItem}
+                    action={userState ? deleteItem : false}
                     data={item.key}
                   />
                 </div>

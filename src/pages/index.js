@@ -1,6 +1,13 @@
 import Incio from "./Incio";
 
-export default function App({ cart, setCart, render, setRender }) {
+export default function App({
+  cart,
+  setCart,
+  render,
+  setRender,
+  userState,
+  setUserState,
+}) {
   return (
     <>
       <Incio
@@ -8,6 +15,8 @@ export default function App({ cart, setCart, render, setRender }) {
         setCart={setCart}
         render={render}
         setRender={setRender}
+        userState={userState}
+        setUserState={setUserState}
       />
     </>
   );

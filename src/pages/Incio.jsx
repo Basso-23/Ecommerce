@@ -1,9 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { products_db } from "@/json/products_db";
 import Buttons from "@/components/Buttons";
 import Link from "next/link";
 
-const Inicio = ({ cart, setCart, render, setRender }) => {
+const Inicio = ({
+  cart,
+  setCart,
+  render,
+  setRender,
+  userState,
+  setUserState,
+}) => {
   const [products, setProducts] = useState(products_db);
 
   //Importante: Valor unico del JSON: key
@@ -63,7 +70,7 @@ const Inicio = ({ cart, setCart, render, setRender }) => {
             >
               <div
                 style={{ backgroundImage: `url(${item.cover})` }}
-                className="aspect-[10/14.8] w-[300px] bg-cover bg-no-repeat mb-2"
+                className="aspect-[12/18] bg-cover bg-no-repeat mb-2"
               ></div>
             </Link>
             {/* Price */}
@@ -88,13 +95,11 @@ const Inicio = ({ cart, setCart, render, setRender }) => {
                 </div>
               ))}
             </div>
-            {/* Add to cart */}
-            {/* item.key + item.size = cambia el valor unico del producto al valor que posee actualmente mas su modifier */}
+
             <Buttons
               name={"Add"}
-              action={addItem}
-              id={item.key + item.size}
-              modifier={item.size}
+              //"userState ? false : addItem" Valida si el usuario esta registrado, si lo esta ejecita la accion sino envia al componente: false
+              action={userState ? addItem : false}
               data={{
                 key: item.key + item.size,
                 title: item.title,
@@ -104,7 +109,10 @@ const Inicio = ({ cart, setCart, render, setRender }) => {
                 price: item.price,
                 available_sizes: item.available_sizes,
               }}
+              modifier={item.size}
+              id={item.key + item.size}
             />
+            {userState}
           </div>
         ))}
       </section>

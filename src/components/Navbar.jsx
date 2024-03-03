@@ -3,7 +3,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Mycart from "./Mycart";
 
-const Navbar = ({ cart, setCart, render, setRender }) => {
+const Navbar = ({
+  cart,
+  setCart,
+  render,
+  setRender,
+  userState,
+  setUserState,
+}) => {
   const [cartIsOpen, setCartIsOpen] = useState(false);
 
   //Console log cada vez que se modifica el carrito
@@ -34,6 +41,8 @@ const Navbar = ({ cart, setCart, render, setRender }) => {
             setCart={setCart}
             render={render}
             setRender={setRender}
+            userState={userState}
+            setUserState={setUserState}
           />
         </>
       ) : null}
@@ -41,7 +50,12 @@ const Navbar = ({ cart, setCart, render, setRender }) => {
       <section className=" flex justify-evenly h-[80px] items-center fixed w-full font-bold z-50 bg-white ">
         <Nav name={"Home"} url={"/"} />
         <Nav name={"Payment"} url={"/PaymentScreen"} />
-        <Nav name={"Login"} url={"/LoginScreen"} />
+        {userState ? (
+          <div>{userState}</div>
+        ) : (
+          <Nav name={"Login"} url={"/LoginScreen"} />
+        )}
+
         <div
           onClick={() => {
             setCartIsOpen(!cartIsOpen);
