@@ -7,7 +7,7 @@ const ProductInfo = ({ cart, setCart, render, setRender }) => {
   const [product, setProduct] = useState([]);
 
   const id = router.query.id;
-  console.log(id, "ID");
+  //console.log(id, "ID");
 
   useEffect(() => {
     const newItems = products_db.filter((item) => item.key === id);
