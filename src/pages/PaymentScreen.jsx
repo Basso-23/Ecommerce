@@ -1,6 +1,7 @@
-const Pagina2 = ({ cart, setCart }) => {
+const PaymentScreen = ({ cart, setCart }) => {
   return (
-    <div className=" flex">
+    <div className=" flex flex-col gap-20">
+      <div>PaymentScreen</div>
       <div className="m-auto text-sm flex flex-col gap-6">
         {cart.map((item) => (
           <div key={item.key}>{item.title}</div>
@@ -10,4 +11,4 @@ const Pagina2 = ({ cart, setCart }) => {
   );
 };
 
-export default Pagina2;
+export default PaymentScreen;

@@ -39,9 +39,9 @@ const Navbar = ({ cart, setCart, render, setRender }) => {
       ) : null}
 
       <section className=" flex justify-evenly h-[80px] items-center fixed w-full font-bold z-50 bg-white ">
-        <Nav name={"Pagina 1"} url={"/"} />
-        <Nav name={"Pagina 2"} url={"/Pagina2"} />
-        <Nav name={"Pagina 3"} url={"/Pagina3"} />
+        <Nav name={"Home"} url={"/"} />
+        <Nav name={"Payment"} url={"/PaymentScreen"} />
+        <Nav name={"Login"} url={"/LoginScreen"} />
         <div
           onClick={() => {
             setCartIsOpen(!cartIsOpen);
