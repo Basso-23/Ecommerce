@@ -22,7 +22,7 @@ const LoginScreen = ({
     }
   }, [userState]);
 
-  //La variable "redirect hace el redirect instantaneo para que no espera la rspuesta de google para luego redirrecionar a home"
+  //La variable "redirect" hace el redirect instantaneo para que no espera la rspuesta de google para luego redirrecionar a home"
   useEffect(() => {
     if (redirect) {
       Router.push("/");
@@ -37,7 +37,7 @@ const LoginScreen = ({
       try {
         setRedirect(true);
         const res = await signInWithRedirect(auth, googleProvider);
-        console.log(res);
+        console.log("RES", res);
       } catch (error) {
         console.log(error);
       }

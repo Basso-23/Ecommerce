@@ -13,17 +13,22 @@ const App = ({ Component, pageProps, router }) => {
   const [render, setRender] = useState(true);
   const [userState, setUserState] = useState();
 
+  //Muestra en consola el nombre del usuario
+  useEffect(() => {
+    console.log("USER:", userState);
+  }, [userState]);
+
   //Verifica el estado del usuario
   useEffect(() => {
     onAuthStateChanged(auth, userCheckState);
-  }, [userState]);
+  }, []);
   //console.log del estado del usuario
   function userCheckState(user) {
     if (user) {
       setUserState(user.displayName);
-      console.log("USER STATE:", userState);
+      console.log("HAY USER (app)");
     } else {
-      console.log("User undefined");
+      console.log("NO HAY USER (app)");
     }
   }
 
