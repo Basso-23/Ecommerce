@@ -18,7 +18,7 @@ const LoginScreen = ({
     if (userState) {
       Router.push("/");
     } else {
-      console.log("NO esta logged");
+      console.log("NO HAY USER (login)");
     }
   }, [userState]);
 
@@ -53,7 +53,6 @@ const LoginScreen = ({
   return (
     <div className=" flex flex-col gap-20">
       <div className="m-auto text-7xl"> LoginScreen </div>
-
       <button onClick={handleLogin}>Login with google</button>
       <button onClick={handleSignOut}>Sign Out</button>
     </div>

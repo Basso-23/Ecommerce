@@ -4,13 +4,11 @@ const Buttons = ({ name, action, data, modifier, id }) => {
   return (
     <div
       onClick={() => {
-        //Valida si la accion es false, asi sabe si el usuario esta logged o no
+        //Si "action" existe ejecutara la accion, de lo contrario significa que el usuario no esta logeado y lo rediccionara a la pagina de login
         if (action) {
-          {
-            action(data, id, modifier);
-          }
+          action(data, id, modifier);
         } else {
-          //Si la accion es false redirreciona al usuario a la pagina de Login
+          //Redireccion a la pagina de login
           Router.push("/LoginScreen");
         }
       }}

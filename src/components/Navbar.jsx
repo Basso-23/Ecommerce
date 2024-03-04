@@ -26,23 +26,10 @@ const Navbar = ({
     console.log(cart);
   }, [cart]);
 
-  //Sign Out
+  //Sign Out y redireccion a home
   function handleSignOut() {
     signOut(auth);
-  }
-
-  //Verifica el estado del usuario
-  useEffect(() => {
-    onAuthStateChanged(auth, userCheckState);
-  }, []);
-  //console.log del estado del usuario
-  function userCheckState(user) {
-    if (user) {
-      setUserState(user.displayName);
-      console.log("HAY USER (app)");
-    } else {
-      console.log("NO HAY USER (nav)");
-    }
+    Router.push("/");
   }
 
   const pathname = usePathname();
@@ -75,10 +62,7 @@ const Navbar = ({
         </>
       ) : null}
 
-      <section
-        key={render}
-        className=" flex justify-evenly h-[80px] items-center fixed w-full font-bold z-50 bg-white "
-      >
+      <section className=" flex justify-evenly h-[80px] items-center fixed w-full font-bold z-50 bg-white ">
         <Nav name={"Home"} url={"/"} />
         <Nav name={"Payment"} url={"/PaymentScreen"} />
         {userState ? (
