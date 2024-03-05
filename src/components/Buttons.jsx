@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Router from "next/router";
+import { collection, getDocs, addDoc } from "firebase/firestore";
 const Buttons = ({ name, action, data, modifier, id }) => {
   return (
     <div

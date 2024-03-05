@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { products_db } from "@/json/products_db";
 import Buttons from "@/components/Buttons";
 import Link from "next/link";
+import { collection, getDocs, addDoc } from "firebase/firestore";
 
 const Inicio = ({
   cart,
