@@ -32,8 +32,28 @@ const App = ({ Component, pageProps, router }) => {
     console.log("USER:", userState);
   }, [userState]);
 
+  useEffect(() => {
+    firebase_read();
+  }, []);
+
+  //Leer base de datos
+  const firebase_read = async () => {
+    await getDocs(collection(db, "catalogo")).then((querySnapshot) => {
+      const newData = querySnapshot.docs.map((doc) => ({
+        ...doc.data(),
+        id: doc.id,
+      }));
+      setCatalogo(newData);
+    });
+  };
+
+  //Muestra en consola el catalogo cada vez que cambia
+  useEffect(() => {
+    console.log("CATALOGO:", catalogo);
+  }, [catalogo]);
+
   return (
-    <>
+    <div className=" flex flex-col items-center ">
       <Navbar
         cart={cart}
         setCart={setCart}
@@ -44,21 +64,21 @@ const App = ({ Component, pageProps, router }) => {
         catalogo={catalogo}
         setCatalogo={setCatalogo}
       />
-      <div className="pt-[80px] relative">
+      <div className="pt-[80px] pageSize">
         <Component
           key={router.pathname}
           {...pageProps}
-          cart={cart}
-          setCart={setCart}
-          render={render}
-          setRender={setRender}
           userState={userState}
           setUserState={setUserState}
+          cart={cart}
+          setCart={setCart}
           catalogo={catalogo}
           setCatalogo={setCatalogo}
+          render={render}
+          setRender={setRender}
         />
       </div>
-    </>
+    </div>
   );
 };
 

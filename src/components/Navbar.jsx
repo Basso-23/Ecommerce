@@ -3,13 +3,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Mycart from "./Mycart";
 import { auth } from "@/firebase/firebase";
+
+import Router from "next/router";
 import {
   GoogleAuthProvider,
-  signInWithPopup,
-  onAuthStateChanged,
+  signInWithRedirect,
   signOut,
+  signInWithPopup,
 } from "firebase/auth";
-import Router from "next/router";
 
 const Navbar = ({
   cart,
@@ -28,12 +29,6 @@ const Navbar = ({
     console.log(cart);
   }, [cart]);
 
-  //Sign Out y redireccion a home
-  function handleSignOut() {
-    signOut(auth);
-    Router.push("/");
-  }
-
   const pathname = usePathname();
   const Nav = ({ name, url }) => {
     return (
@@ -48,8 +43,29 @@ const Navbar = ({
     );
   };
 
+  //Auth with Google
+  async function handleLogin() {
+    const googleProvider = new GoogleAuthProvider();
+    await signInWithGoogle(googleProvider);
+    async function signInWithGoogle(googleProvider) {
+      try {
+        console.log("antes");
+        const res = await signInWithPopup(auth, googleProvider);
+        console.log("despues");
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
+
+  //Sign Out y redireccion a home
+  function handleSignOut() {
+    signOut(auth);
+    Router.push("/");
+  }
+
   return (
-    <main>
+    <main className="pageSize fixed  ">
       {/* Carrito ---------------------------------------------------------------------------------------------- */}
       {cartIsOpen ? (
         <>
@@ -66,32 +82,35 @@ const Navbar = ({
         </>
       ) : null}
 
-      <section className=" flex justify-evenly h-[80px] items-center fixed w-full font-bold z-50 bg-white ">
-        <Nav name={"Home"} url={"/"} />
-        <Nav name={"Payment"} url={"/PaymentScreen"} />
-        {userState ? (
-          <div>
-            <div> {userState}</div>
-            <button
-              onClick={() => {
-                handleSignOut();
-                setUserState();
-              }}
-            >
-              Sign Out
-            </button>
-          </div>
-        ) : (
-          <Nav name={"Login"} url={"/LoginScreen"} />
-        )}
-
-        <div
-          onClick={() => {
-            setCartIsOpen(!cartIsOpen);
-          }}
-          className=" cursor-pointer select-none"
-        >
-          Mi carrito <span>{cart.length}</span>
+      <section className=" flex  justify-between h-[80px] items-center z-50 bg-white  ">
+        <div className=" flex gap-6">
+          <Nav name={"Inicio"} url={"/"} />
+          <Nav name={"Catalogo"} url={"/Catalogo"} />
+        </div>
+        <div className=" flex gap-6">
+          {userState ? (
+            <div className=" flex gap-4">
+              <div> {userState}</div>
+              <button
+                onClick={() => {
+                  handleSignOut();
+                  setUserState();
+                }}
+              >
+                Cerrar Sesión
+              </button>
+              <div
+                onClick={() => {
+                  setCartIsOpen(!cartIsOpen);
+                }}
+                className=" cursor-pointer select-none"
+              >
+                🛒 <span>{cart.length}</span>
+              </div>
+            </div>
+          ) : (
+            <button onClick={handleLogin}>Identifícate</button>
+          )}
         </div>
       </section>
     </main>

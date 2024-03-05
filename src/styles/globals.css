@@ -6,3 +6,8 @@
   background-color: #ffffff;
   color: #151515;
 }
+
+.pageSize {
+  max-width: 1250px;
+  width: 100%;
+}
