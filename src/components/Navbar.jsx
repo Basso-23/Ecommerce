@@ -18,6 +18,8 @@ const Navbar = ({
   setRender,
   userState,
   setUserState,
+  catalogo,
+  setCatalogo,
 }) => {
   const [cartIsOpen, setCartIsOpen] = useState(false);
 
@@ -58,6 +60,8 @@ const Navbar = ({
             setRender={setRender}
             userState={userState}
             setUserState={setUserState}
+            catalogo={catalogo}
+            setCatalogo={setCatalogo}
           />
         </>
       ) : null}

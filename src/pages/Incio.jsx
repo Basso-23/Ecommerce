@@ -10,6 +10,8 @@ const Inicio = ({
   setRender,
   userState,
   setUserState,
+  catalogo,
+  setCatalogo,
 }) => {
   const [products, setProducts] = useState(products_db);
 
@@ -59,7 +61,7 @@ const Inicio = ({
         key={render}
         className="flex justify-center gap-4 h-fit flex-wrap"
       >
-        {products.map((item) => (
+        {catalogo.map((item) => (
           <div key={item.key} className="mt-10">
             {/* Image with dynamic routing */}
             <Link

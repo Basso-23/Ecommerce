@@ -7,6 +7,8 @@ export default function App({
   setRender,
   userState,
   setUserState,
+  catalogo,
+  setCatalogo,
 }) {
   return (
     <>
@@ -17,6 +19,8 @@ export default function App({
         setRender={setRender}
         userState={userState}
         setUserState={setUserState}
+        catalogo={catalogo}
+        setCatalogo={setCatalogo}
       />
     </>
   );

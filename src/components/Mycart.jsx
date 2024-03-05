@@ -8,6 +8,8 @@ const Mycart = ({
   setRender,
   userState,
   setUserState,
+  catalogo,
+  setCatalogo,
 }) => {
   //Importante: Valor unico del JSON: key
   //JSON que esta cambiando: cart
