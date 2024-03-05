@@ -12,7 +12,7 @@ const App = ({ Component, pageProps, router }) => {
   const [userState, setUserState] = useState();
   const [catalogo, setCatalogo] = useState([]);
 
-  //Verifica el estado del usuario
+  //Verifica si el usuario esta registrado
   useEffect(() => {
     onAuthStateChanged(auth, userCheckState);
   }, []);
@@ -32,11 +32,12 @@ const App = ({ Component, pageProps, router }) => {
     console.log("USER:", userState);
   }, [userState]);
 
+  //Obtiene los datos del catalogo de la base de datos cuando carga la pagina
   useEffect(() => {
     firebase_read();
   }, []);
 
-  //Leer base de datos
+  //Asigna la informacion de la base de datos seleccionada a una variable "catalogo"
   const firebase_read = async () => {
     await getDocs(collection(db, "catalogo")).then((querySnapshot) => {
       const newData = querySnapshot.docs.map((doc) => ({

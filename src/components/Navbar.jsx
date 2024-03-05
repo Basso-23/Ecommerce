@@ -3,7 +3,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Mycart from "./Mycart";
 import { auth } from "@/firebase/firebase";
-
 import Router from "next/router";
 import {
   GoogleAuthProvider,
@@ -22,14 +21,6 @@ const Navbar = ({
   catalogo,
   setCatalogo,
 }) => {
-  const [cartIsOpen, setCartIsOpen] = useState(false);
-
-  //Console log cada vez que se modifica el carrito
-  useEffect(() => {
-    console.log(cart);
-  }, [cart]);
-
-  const pathname = usePathname();
   const Nav = ({ name, url }) => {
     return (
       <div>
@@ -43,6 +34,14 @@ const Navbar = ({
     );
   };
 
+  const pathname = usePathname();
+  const [cartIsOpen, setCartIsOpen] = useState(false);
+
+  //Console log cada vez que se modifica el carrito
+  useEffect(() => {
+    console.log(cart);
+  }, [cart]);
+
   //Auth with Google
   async function handleLogin() {
     const googleProvider = new GoogleAuthProvider();
@@ -50,7 +49,12 @@ const Navbar = ({
     async function signInWithGoogle(googleProvider) {
       try {
         console.log("antes");
-        const res = await signInWithPopup(auth, googleProvider);
+        //Valida si se esta viendo desde un navegador de escritorio o mobile
+        if (isMobile()) {
+          const res = await signInWithRedirect(auth, googleProvider);
+        } else {
+          const res = await signInWithPopup(auth, googleProvider);
+        }
         console.log("despues");
       } catch (error) {
         console.log(error);
@@ -62,6 +66,12 @@ const Navbar = ({
   function handleSignOut() {
     signOut(auth);
     Router.push("/");
+  }
+  //Detecta si se está viendo desde un navegador web móvil o de escritorio para así poner la autenticación correcta, ya que el popup no se ve en móviles.
+  function isMobile() {
+    const regex =
+      /Mobi|Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
+    return regex.test(navigator.userAgent);
   }
 
   return (
