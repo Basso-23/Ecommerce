@@ -4,6 +4,32 @@ import { collection, getDocs, addDoc } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 
 const Catalogo = ({ catalogo, setCatalogo }) => {
+  const [formData, setFormData] = useState({
+    key: "",
+    name: "",
+    image: "",
+    category: "",
+    description: "",
+    price: "",
+    qty: 1,
+    available_qty: "",
+  });
+
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setFormData((prevState) => ({ ...prevState, [name]: value }));
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    formData.key = keyMaker(8);
+    formData.qty = 1;
+    formData.price = Number(formData.price);
+    formData.available_qty = Number(formData.available_qty);
+    console.log(formData);
+    firebase_write();
+  };
+
   //Asigna un key aleatorio al producto
   function keyMaker(length) {
     let result = "";
@@ -15,26 +41,32 @@ const Catalogo = ({ catalogo, setCatalogo }) => {
       result += characters.charAt(Math.floor(Math.random() * charactersLength));
       counter += 1;
     }
+
     return result;
   }
 
-  const firebase_write = async (e) => {
+  const firebase_write = async () => {
     try {
       const docRef = await addDoc(collection(db, "catalogo"), {
-        key: keyMaker(8),
-        title: "Nuevo",
-        qty: 1,
-        cover: "https://i.imgur.com/NSdjo7f.jpeg",
-        size: "S",
-        price: 10,
-        available_sizes: [
-          { key: 1, option: "S", price: 10 },
-          { key: 2, option: "M", price: 20 },
-          { key: 3, option: "L", price: 30 },
-        ],
+        key: formData.key,
+        name: formData.name,
+        image: formData.image,
+        category: formData.category,
+        description: formData.description,
+        price: formData.price,
+        qty: formData.qty,
+        available_qty: formData.available_qty,
       });
       firebase_read();
       console.log("Document written with ID: ", docRef.id);
+      formData.key = "";
+      formData.name = "";
+      formData.image = "";
+      formData.category = "";
+      formData.description = "";
+      formData.price = "";
+      formData.qty = "";
+      formData.available_qty = "";
     } catch (e) {
       console.error("Error adding document: ", e);
     }
@@ -57,14 +89,79 @@ const Catalogo = ({ catalogo, setCatalogo }) => {
         {/* Left container*/}
         <div className=" w-[250px] h-[800px] p-5 gap-6 flex flex-col">
           <div className="w-full h-64 border"></div>
-          <button
-            onClick={() => {
-              firebase_write();
-            }}
-            className=" text-center py-2  bg-orange-500 text-white"
-          >
-            Agregar Producto
-          </button>
+
+          <form onSubmit={handleSubmit}>
+            <label>
+              Nombre del Producto
+              <input
+                className=" border border-black"
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                required
+              />
+            </label>
+            <label>
+              URL de Imagen
+              <input
+                className=" border border-black"
+                type="text"
+                name="image"
+                value={formData.image}
+                onChange={handleChange}
+                required
+              />
+            </label>
+            <label>
+              Categoria
+              <input
+                className=" border border-black"
+                type="text"
+                name="category"
+                value={formData.category}
+                onChange={handleChange}
+                required
+              />
+            </label>
+            <label>
+              Descripcion
+              <input
+                className=" border border-black"
+                type="text"
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                required
+              />
+            </label>
+
+            <label>
+              Precio 💸
+              <input
+                className=" border border-black"
+                type="number"
+                name="price"
+                value={formData.price}
+                onChange={handleChange}
+                required
+              />
+            </label>
+
+            <label>
+              Cantidad en Stock
+              <input
+                className=" border border-black"
+                type="number"
+                name="available_qty"
+                value={formData.available_qty}
+                onChange={handleChange}
+                required
+              />
+            </label>
+
+            <input type="submit" value="Submit" />
+          </form>
         </div>
         {/* Right container */}
         <div className=" flex-1 p-5">
@@ -82,7 +179,7 @@ const Catalogo = ({ catalogo, setCatalogo }) => {
                   >
                     <div className=" w-full h-[350px] justify-center items-center flex bg-[#F1F4F6] shadow-sm">
                       <div
-                        style={{ backgroundImage: `url(${item.cover})` }}
+                        style={{ backgroundImage: `url(${item.image})` }}
                         className=" bg-contain bg-no-repeat mb-2 w-full h-full bg-center"
                       ></div>
                     </div>
