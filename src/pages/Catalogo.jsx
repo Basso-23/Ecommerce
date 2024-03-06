@@ -13,6 +13,7 @@ import { db } from "@/firebase/firebase";
 
 const Catalogo = ({ catalogo, setCatalogo, userState }) => {
   const [deleteModal, setDeleteModal] = useState(false);
+  const [updateModal, setUpdateModal] = useState(false);
   const [tempKey, setTempKey] = useState("");
   const [formData, setFormData] = useState({
     key: "",
@@ -38,6 +39,30 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
   const handleChange = (event) => {
     const { name, value } = event.target;
     setFormData((prevState) => ({ ...prevState, [name]: value }));
+  };
+
+  //Se encarga de mostrar los cambios en el input para crear un producto
+  const handleChangeUpdate = (event) => {
+    const { name, value } = event.target;
+    setFormDataUpdate((prevState) => ({ ...prevState, [name]: value }));
+  };
+
+  //Actualiza el articulo requiere: (nombre de la coleccion y la key del producto a actualizar)
+  const firebase_update = async (event) => {
+    event.preventDefault();
+    //Tranforma de string a number el precio y las cantidades disponibles
+    formDataUpdate.price = Number(formDataUpdate.price);
+    formDataUpdate.available_qty = Number(formDataUpdate.available_qty);
+    const dbRef = doc(db, "catalogo", tempKey);
+    await updateDoc(dbRef, {
+      name: formDataUpdate.name,
+      image: formDataUpdate.image,
+      category: formDataUpdate.category,
+      description: formDataUpdate.description,
+      price: formDataUpdate.price,
+      available_qty: formDataUpdate.available_qty,
+    });
+    firebase_read();
   };
 
   //Cuando le dan a agregar producto
@@ -105,15 +130,6 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
       }));
       setCatalogo(newData);
     });
-  };
-
-  //Actualiza el articulo requiere: (nombre de la coleccion y la key del producto a actualizar)
-  const firebase_update = async (coleccion, key) => {
-    const dbRef = doc(db, coleccion, key);
-    await updateDoc(dbRef, {
-      name: "cambiado",
-    });
-    firebase_read();
   };
 
   //Borra el articulo requiere: (nombre de la coleccion y la key del producto a borrar)
@@ -261,12 +277,14 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                   {/* Form container*/}
                   <div
                     className={
-                      userState === process.env.ADMINID ? "flex" : "hidden"
+                      userState === process.env.ADMINID && item.key === tempKey
+                        ? "flex"
+                        : "hidden"
                     }
                   >
                     <form
                       className="flex flex-col gap-4"
-                      onSubmit={handleSubmit}
+                      onSubmit={firebase_update}
                     >
                       <label>
                         Nombre del Producto
@@ -274,9 +292,8 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                           className=" border border-black w-full"
                           type="text"
                           name="name"
-                          placeholder={item.name}
                           value={formDataUpdate.name}
-                          onChange={handleChange}
+                          onChange={handleChangeUpdate}
                           required
                         />
                       </label>
@@ -287,9 +304,8 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                           className=" border border-black w-full"
                           type="text"
                           name="category"
-                          placeholder={item.category}
                           value={formDataUpdate.category}
-                          onChange={handleChange}
+                          onChange={handleChangeUpdate}
                           required
                         />
                       </label>
@@ -299,9 +315,8 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                           className=" border border-black w-full"
                           type="text"
                           name="image"
-                          placeholder={item.image}
                           value={formDataUpdate.image}
-                          onChange={handleChange}
+                          onChange={handleChangeUpdate}
                           required
                         />
                       </label>
@@ -313,9 +328,8 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                           cols={40}
                           type="text"
                           name="description"
-                          placeholder={item.description}
                           value={formDataUpdate.description}
-                          onChange={handleChange}
+                          onChange={handleChangeUpdate}
                           required
                         />
                       </label>
@@ -326,9 +340,8 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                           className=" border border-black w-full"
                           type="number"
                           name="price"
-                          placeholder={item.price}
                           value={formDataUpdate.price}
-                          onChange={handleChange}
+                          onChange={handleChangeUpdate}
                           required
                         />
                       </label>
@@ -339,9 +352,8 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                           className=" border border-black w-full"
                           type="number"
                           name="available_qty"
-                          placeholder={item.available_qty}
                           value={formDataUpdate.available_qty}
-                          onChange={handleChange}
+                          onChange={handleChangeUpdate}
                           required
                         />
                       </label>
@@ -349,10 +361,30 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                       <input
                         className=" w-full py-2 bg-amber-500 text-white cursor-pointer"
                         type="submit"
-                        value="Agregar Producto"
+                        value="GUARDAR"
                       />
                     </form>
                   </div>
+
+                  {/* Modificar Producto */}
+                  <button
+                    className={
+                      userState === process.env.ADMINID
+                        ? "border py-2 w-full mt-4"
+                        : "hidden"
+                    }
+                    onClick={() => {
+                      setTempKey(item.key);
+                      formDataUpdate.name = item.name;
+                      formDataUpdate.image = item.image;
+                      formDataUpdate.category = item.category;
+                      formDataUpdate.description = item.description;
+                      formDataUpdate.price = item.price;
+                      formDataUpdate.available_qty = item.available_qty;
+                    }}
+                  >
+                    MODIFICAR
+                  </button>
 
                   {/* Borrar Producto */}
                   <button
