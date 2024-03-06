@@ -7,13 +7,13 @@ import {
   setDoc,
   doc,
   deleteDoc,
+  updateDoc,
 } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 
 const Catalogo = ({ catalogo, setCatalogo, userState }) => {
   const [deleteModal, setDeleteModal] = useState(false);
   const [tempKey, setTempKey] = useState("");
-
   const [formData, setFormData] = useState({
     key: "",
     name: "",
@@ -98,6 +98,15 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
     });
   };
 
+  //Actualiza el articulo requiere: (nombre de la coleccion y la key del producto a actualizar)
+  const firebase_update = async (coleccion, key) => {
+    const dbRef = doc(db, coleccion, key);
+    await updateDoc(dbRef, {
+      name: "cambiado",
+    });
+    firebase_read();
+  };
+
   //Borra el articulo requiere: (nombre de la coleccion y la key del producto a borrar)
   const firebase_delete = async (coleccion, key) => {
     await deleteDoc(doc(db, coleccion, key));
@@ -105,6 +114,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
     firebase_read();
   };
 
+  //Muestra en consola la key temporal del producto seleccionado
   useEffect(() => {
     console.log("TEMP KEY:", tempKey);
   }, [tempKey]);
@@ -241,7 +251,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                     <button
                       className="border py-1"
                       onClick={() => {
-                        firebase_delete("catalogo", item.key);
+                        firebase_update("catalogo", item.key);
                       }}
                     >
                       MODIFICAR
@@ -262,13 +272,16 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
               .reverse()}
           </section>
         </div>
+
+        {/* Dlete modal container */}
         {deleteModal ? (
           <div className="pageSize h-screen flex flex-col justify-center items-center fixed z-50 bg-[#ffffff]">
             <div className="flex flex-col -mt-44 gap-10">
               <div className=" text-xl">
-                ¿Confirmas que quieres eliminar este producto?{" "}
+                ¿Confirmas que quieres eliminar este producto?
               </div>
               <div className="  grid grid-cols-2 gap-10 w-[#ffffff]">
+                {/* Cerrar modal */}
                 <button
                   onClick={() => {
                     setDeleteModal(false);
@@ -277,6 +290,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                 >
                   CANCELAR
                 </button>
+                {/* Borrar producto */}
                 <button
                   onClick={() => {
                     firebase_delete("catalogo", tempKey);
