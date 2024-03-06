@@ -266,8 +266,20 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                     {/* Name */}
                     <div className=" text-xl font-medium">{item.name}</div>
 
-                    {/* Price */}
-                    <div className="">${item.price.toFixed(2)}</div>
+                    <div className=" flex justify-between">
+                      {/* Price */}
+                      <div className="">${item.price.toFixed(2)}</div>
+                      {/* Stock */}
+                      <div
+                        className={
+                          userState === process.env.ADMINID
+                            ? "font-medium text-green-500"
+                            : "hidden"
+                        }
+                      >
+                        Stock: {item.available_qty}
+                      </div>
+                    </div>
                   </div>
                   {/* Form container*/}
                   <div
