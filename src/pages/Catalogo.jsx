@@ -258,13 +258,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                     </div>
                   </Link>
                   {/* Info container */}
-                  <div
-                    className={
-                      userState === process.env.ADMINID
-                        ? "hidden"
-                        : "flex flex-col gap-2 mt-4"
-                    }
-                  >
+                  <div className="flex flex-col gap-2 mt-4">
                     {/* Category */}
                     <div className=" text-sm text-zinc-400">
                       {item.category}
@@ -281,12 +275,12 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                       userState === process.env.ADMINID &&
                       item.key === tempKey &&
                       updateModal
-                        ? "flex"
+                        ? "flex relative"
                         : "hidden"
                     }
                   >
                     <form
-                      className="flex flex-col gap-4"
+                      className="flex flex-col gap-4 mt-4 "
                       onSubmit={firebase_update}
                     >
                       <label>
@@ -367,12 +361,20 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                         value="GUARDAR"
                       />
                     </form>
+                    <div
+                      onClick={() => {
+                        setUpdateModal(false);
+                      }}
+                      className=" absolute right-0 top-0 cursor-pointer text-lg bg-red-600 text-white px-3 py-0"
+                    >
+                      X
+                    </div>
                   </div>
 
                   {/* Modificar Producto */}
                   <button
                     className={
-                      userState === process.env.ADMINID
+                      userState === process.env.ADMINID && !updateModal
                         ? "border py-2 w-full mt-4"
                         : "hidden"
                     }
