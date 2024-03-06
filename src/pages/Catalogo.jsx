@@ -25,6 +25,15 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
     available_qty: "",
   });
 
+  const [formDataUpdate, setFormDataUpdate] = useState({
+    name: "",
+    image: "",
+    category: "",
+    description: "",
+    price: "",
+    available_qty: "",
+  });
+
   //Se encarga de mostrar los cambios en el input para crear un producto
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -232,66 +241,133 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                     </div>
                   </Link>
                   {/* Info container */}
-                  <div className=" flex flex-col gap-2 mt-4">
+                  <div
+                    className={
+                      userState === process.env.ADMINID
+                        ? "hidden"
+                        : "flex flex-col gap-2 mt-4"
+                    }
+                  >
                     {/* Category */}
                     <div className=" text-sm text-zinc-400">
                       {item.category}
                     </div>
                     {/* Name */}
                     <div className=" text-xl font-medium">{item.name}</div>
-                    <div className="w-full flex justify-between">
-                      {/* Price */}
-                      <div className="">${item.price.toFixed(2)}</div>
-                      {/* Stock */}
-                      <div
-                        className={
-                          userState === process.env.ADMINID
-                            ? " font-bold"
-                            : "hidden"
-                        }
-                      >
-                        Stock: {item.available_qty}
-                      </div>
-                    </div>
-                    {/* Description */}
-                    <div
-                      className={
-                        userState === process.env.ADMINID
-                          ? "flex w-full h-[150px] overflow-y-auto"
-                          : "hidden"
-                      }
-                    >
-                      {item.description}
-                    </div>
+
+                    {/* Price */}
+                    <div className="">${item.price.toFixed(2)}</div>
                   </div>
-                  {/* Admin buttons */}
+                  {/* Form container*/}
                   <div
                     className={
-                      userState === process.env.ADMINID
-                        ? "flex flex-col mt-6 gap-4"
-                        : "hidden"
+                      userState === process.env.ADMINID ? "flex" : "hidden"
                     }
                   >
-                    {/* Update */}
-                    <button
-                      className="border py-1"
-                      onClick={() => {
-                        firebase_update("catalogo", item.key);
-                      }}
+                    <form
+                      className="flex flex-col gap-4"
+                      onSubmit={handleSubmit}
                     >
-                      MODIFICAR
-                    </button>
-                    {/* Price */}
-                    <button
-                      className="border py-1 "
-                      onClick={() => {
-                        setDeleteModal(true);
-                        setTempKey(item.key);
-                      }}
-                    >
-                      BORRAR
-                    </button>
+                      <label>
+                        Nombre del Producto
+                        <input
+                          className=" border border-black w-full"
+                          type="text"
+                          name="name"
+                          placeholder={item.name}
+                          value={formDataUpdate.name}
+                          onChange={handleChange}
+                          required
+                        />
+                      </label>
+
+                      <label>
+                        Categoria
+                        <input
+                          className=" border border-black w-full"
+                          type="text"
+                          name="category"
+                          placeholder={item.category}
+                          value={formDataUpdate.category}
+                          onChange={handleChange}
+                          required
+                        />
+                      </label>
+                      <label>
+                        URL de Imagen
+                        <input
+                          className=" border border-black w-full"
+                          type="text"
+                          name="image"
+                          placeholder={item.image}
+                          value={formDataUpdate.image}
+                          onChange={handleChange}
+                          required
+                        />
+                      </label>
+                      <label>
+                        Descripcion
+                        <textarea
+                          className=" border border-black w-full h-40"
+                          rows={4}
+                          cols={40}
+                          type="text"
+                          name="description"
+                          placeholder={item.description}
+                          value={formDataUpdate.description}
+                          onChange={handleChange}
+                          required
+                        />
+                      </label>
+
+                      <label>
+                        Precio 💸
+                        <input
+                          className=" border border-black w-full"
+                          type="number"
+                          name="price"
+                          placeholder={item.price}
+                          value={formDataUpdate.price}
+                          onChange={handleChange}
+                          required
+                        />
+                      </label>
+
+                      <label>
+                        Cantidad en Stock
+                        <input
+                          className=" border border-black w-full"
+                          type="number"
+                          name="available_qty"
+                          placeholder={item.available_qty}
+                          value={formDataUpdate.available_qty}
+                          onChange={handleChange}
+                          required
+                        />
+                      </label>
+
+                      <input
+                        className=" w-full py-2 bg-amber-500 text-white cursor-pointer"
+                        type="submit"
+                        value="Agregar Producto"
+                      />
+                    </form>
                   </div>
+
+                  {/* Borrar Producto */}
+                  <button
+                    className={
+                      userState === process.env.ADMINID
+                        ? "border py-2 w-full mt-4"
+                        : "hidden"
+                    }
+                    onClick={() => {
+                      setDeleteModal(true);
+                      setTempKey(item.key);
+                    }}
+                  >
+                    BORRAR
+                  </button>
                 </div>
               ))
               .reverse()}
