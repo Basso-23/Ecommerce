@@ -1,6 +1,6 @@
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
-import { collection, getDocs, addDoc } from "firebase/firestore";
+import { collection, getDocs, addDoc, setDoc, doc } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 
 const Catalogo = ({ catalogo, setCatalogo }) => {
@@ -22,7 +22,7 @@ const Catalogo = ({ catalogo, setCatalogo }) => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    formData.key = keyMaker(8);
+    formData.key = keyMaker(10);
     formData.qty = 1;
     formData.price = Number(formData.price);
     formData.available_qty = Number(formData.available_qty);
@@ -47,7 +47,7 @@ const Catalogo = ({ catalogo, setCatalogo }) => {
 
   const firebase_write = async () => {
     try {
-      const docRef = await addDoc(collection(db, "catalogo"), {
+      await setDoc(doc(db, "catalogo", formData.key), {
         key: formData.key,
         name: formData.name,
         image: formData.image,
@@ -58,7 +58,7 @@ const Catalogo = ({ catalogo, setCatalogo }) => {
         available_qty: formData.available_qty,
       });
       firebase_read();
-      console.log("Document written with ID: ", docRef.id);
+      console.log("Document written with ID: ", formData.key);
       formData.key = "";
       formData.name = "";
       formData.image = "";
