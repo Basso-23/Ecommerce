@@ -37,7 +37,7 @@ const App = ({ Component, pageProps, router }) => {
     firebase_read();
   }, []);
 
-  //Asigna la informacion de la base de datos seleccionada a una variable "catalogo"
+  //Asigna y Actualiza la informacion de la base de datos seleccionada a una variable "catalogo"
   const firebase_read = async () => {
     await getDocs(collection(db, "catalogo")).then((querySnapshot) => {
       const newData = querySnapshot.docs.map((doc) => ({

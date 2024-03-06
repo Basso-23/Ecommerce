@@ -19,31 +19,12 @@ const Inicio = ({ catalogo, setCatalogo }) => {
             >
               <div
                 style={{ backgroundImage: `url(${item.cover})` }}
-                className="aspect-[12/18] bg-cover bg-no-repeat mb-2"
+                className="aspect-[12/18] bg-cover bg-no-repeat mb-2 w-32"
               ></div>
             </Link>
             {/* Price */}
             <div className="mb-2">${item.price.toFixed(2)}</div>
             {/* Sizes */}
-            <div className="flex gap-6 mb-2">
-              {item.available_sizes.map((data) => (
-                <div
-                  onClick={() => {
-                    item.size = data.option;
-                    item.price = data.price;
-                    setRender(!render);
-                  }}
-                  key={data.key}
-                  className={
-                    item.size === data.option
-                      ? "bg-orange-500 px-4 py-2 text-white select-none cursor-pointer"
-                      : " bg-gray-300 px-4 py-2 text-white select-none cursor-pointer"
-                  }
-                >
-                  {data.option}
-                </div>
-              ))}
-            </div>
           </div>
         ))}
       </section>
