@@ -65,7 +65,6 @@ const Navbar = ({
   //Sign Out y redireccion a home
   function handleSignOut() {
     signOut(auth);
-    Router.push("/");
   }
   //Detecta si se está viendo desde un navegador web móvil o de escritorio para así poner la autenticación correcta, ya que el popup no se ve en móviles.
   function isMobile() {

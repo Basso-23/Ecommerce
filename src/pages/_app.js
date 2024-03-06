@@ -20,7 +20,7 @@ const App = ({ Component, pageProps, router }) => {
   //Muestra en consola del estado del usuario
   function userCheckState(user) {
     if (user) {
-      setUserState(user.displayName);
+      setUserState(user.uid);
       console.log("HAY USER (app)");
     } else {
       console.log("NO HAY USER (app)");

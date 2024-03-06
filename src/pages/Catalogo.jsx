@@ -1,9 +1,19 @@
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
-import { collection, getDocs, addDoc, setDoc, doc } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  addDoc,
+  setDoc,
+  doc,
+  deleteDoc,
+} from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 
-const Catalogo = ({ catalogo, setCatalogo }) => {
+const Catalogo = ({ catalogo, setCatalogo, userState }) => {
+  const [deleteModal, setDeleteModal] = useState(false);
+  const [tempKey, setTempKey] = useState("");
+
   const [formData, setFormData] = useState({
     key: "",
     name: "",
@@ -15,22 +25,26 @@ const Catalogo = ({ catalogo, setCatalogo }) => {
     available_qty: "",
   });
 
+  //Se encarga de mostrar los cambios en el input para crear un producto
   const handleChange = (event) => {
     const { name, value } = event.target;
     setFormData((prevState) => ({ ...prevState, [name]: value }));
   };
 
+  //Cuando le dan a agregar producto
   const handleSubmit = (event) => {
     event.preventDefault();
+    //Asigna una key aleatoria
     formData.key = keyMaker(10);
     formData.qty = 1;
+    //Tranforma de string a number el precio y las cantidades disponibles
     formData.price = Number(formData.price);
     formData.available_qty = Number(formData.available_qty);
     console.log(formData);
     firebase_write();
   };
 
-  //Asigna un key aleatorio al producto
+  //Funcion que crea la key aleatoria
   function keyMaker(length) {
     let result = "";
     const characters =
@@ -45,6 +59,7 @@ const Catalogo = ({ catalogo, setCatalogo }) => {
     return result;
   }
 
+  //Escribe la informacion en la base de datos
   const firebase_write = async () => {
     try {
       await setDoc(doc(db, "catalogo", formData.key), {
@@ -83,85 +98,104 @@ const Catalogo = ({ catalogo, setCatalogo }) => {
     });
   };
 
+  //Borra el articulo requiere: (nombre de la coleccion y la key del producto a borrar)
+  const firebase_delete = async (coleccion, key) => {
+    await deleteDoc(doc(db, coleccion, key));
+    console.log("Articulo borrado", key);
+    firebase_read();
+  };
+
+  useEffect(() => {
+    console.log("TEMP KEY:", tempKey);
+  }, [tempKey]);
+
   return (
     <main>
       <div className=" flex">
         {/* Left container*/}
         <div className=" w-[250px] h-[800px] p-5 gap-6 flex flex-col">
           <div className="w-full h-64 border"></div>
+          {/* Form container*/}
+          <div
+            className={userState === process.env.ADMINID ? "flex" : "hidden"}
+          >
+            <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+              <label>
+                Nombre del Producto
+                <input
+                  className=" border border-black w-full"
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  required
+                />
+              </label>
+              <label>
+                URL de Imagen
+                <input
+                  className=" border border-black w-full"
+                  type="text"
+                  name="image"
+                  value={formData.image}
+                  onChange={handleChange}
+                  required
+                />
+              </label>
+              <label>
+                Categoria
+                <input
+                  className=" border border-black w-full"
+                  type="text"
+                  name="category"
+                  value={formData.category}
+                  onChange={handleChange}
+                  required
+                />
+              </label>
+              <label>
+                Descripcion
+                <input
+                  className=" border border-black w-full"
+                  type="text"
+                  name="description"
+                  value={formData.description}
+                  onChange={handleChange}
+                  required
+                />
+              </label>
 
-          <form onSubmit={handleSubmit}>
-            <label>
-              Nombre del Producto
-              <input
-                className=" border border-black"
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                required
-              />
-            </label>
-            <label>
-              URL de Imagen
-              <input
-                className=" border border-black"
-                type="text"
-                name="image"
-                value={formData.image}
-                onChange={handleChange}
-                required
-              />
-            </label>
-            <label>
-              Categoria
-              <input
-                className=" border border-black"
-                type="text"
-                name="category"
-                value={formData.category}
-                onChange={handleChange}
-                required
-              />
-            </label>
-            <label>
-              Descripcion
-              <input
-                className=" border border-black"
-                type="text"
-                name="description"
-                value={formData.description}
-                onChange={handleChange}
-                required
-              />
-            </label>
+              <label>
+                Precio 💸
+                <input
+                  className=" border border-black w-full"
+                  type="number"
+                  name="price"
+                  value={formData.price}
+                  onChange={handleChange}
+                  required
+                />
+              </label>
 
-            <label>
-              Precio 💸
-              <input
-                className=" border border-black"
-                type="number"
-                name="price"
-                value={formData.price}
-                onChange={handleChange}
-                required
-              />
-            </label>
+              <label>
+                Cantidad en Stock
+                <input
+                  className=" border border-black w-full"
+                  type="number"
+                  name="available_qty"
+                  value={formData.available_qty}
+                  onChange={handleChange}
+                  required
+                />
+              </label>
 
-            <label>
-              Cantidad en Stock
               <input
-                className=" border border-black"
-                type="number"
-                name="available_qty"
-                value={formData.available_qty}
-                onChange={handleChange}
-                required
+                className=" w-full py-2 bg-amber-500 text-white cursor-pointer"
+                type="submit"
+                value="Agregar Producto"
               />
-            </label>
-
-            <input type="submit" value="Submit" />
-          </form>
+            </form>
+          </div>
         </div>
         {/* Right container */}
         <div className=" flex-1 p-5">
@@ -177,21 +211,85 @@ const Catalogo = ({ catalogo, setCatalogo }) => {
                       query: { id: item.key },
                     }}
                   >
-                    <div className=" w-full h-[350px] justify-center items-center flex bg-[#F1F4F6] shadow-sm">
+                    <div className=" w-full h-[350px] justify-center items-center flex bg-[#F1F4F6] shadow-sm ">
                       <div
                         style={{ backgroundImage: `url(${item.image})` }}
                         className=" bg-contain bg-no-repeat mb-2 w-full h-full bg-center"
                       ></div>
                     </div>
                   </Link>
-                  {/* Price */}
-                  <div className="mb-2">${item.price.toFixed(2)}</div>
-                  {/* Sizes */}
+                  {/* Info container */}
+                  <div className=" flex flex-col gap-2 mt-4">
+                    {/* Category */}
+                    <div className=" text-sm text-zinc-400">
+                      {item.category}
+                    </div>
+                    {/* Name */}
+                    <div className=" text-xl font-medium">{item.name}</div>
+                    {/* Price */}
+                    <div className="">${item.price.toFixed(2)}</div>
+                  </div>
+                  {/* Admin container */}
+                  <div
+                    className={
+                      userState === process.env.ADMINID
+                        ? "flex flex-col mt-6 gap-4"
+                        : "hidden"
+                    }
+                  >
+                    {/* Update */}
+                    <button
+                      className="border py-1"
+                      onClick={() => {
+                        firebase_delete("catalogo", item.key);
+                      }}
+                    >
+                      MODIFICAR
+                    </button>
+                    {/* Price */}
+                    <button
+                      className="border py-1 "
+                      onClick={() => {
+                        setDeleteModal(true);
+                        setTempKey(item.key);
+                      }}
+                    >
+                      BORRAR
+                    </button>
+                  </div>
                 </div>
               ))
               .reverse()}
           </section>
         </div>
+        {deleteModal ? (
+          <div className="pageSize h-screen flex flex-col justify-center items-center fixed z-50 bg-[#ffffff]">
+            <div className="flex flex-col -mt-44 gap-10">
+              <div className=" text-xl">
+                ¿Confirmas que quieres eliminar este producto?{" "}
+              </div>
+              <div className="  grid grid-cols-2 gap-10 w-[#ffffff]">
+                <button
+                  onClick={() => {
+                    setDeleteModal(false);
+                  }}
+                  className="w-full py-2 px-6 bg-red-500 text-white"
+                >
+                  CANCELAR
+                </button>
+                <button
+                  onClick={() => {
+                    firebase_delete("catalogo", tempKey);
+                    setDeleteModal(false);
+                  }}
+                  className="w-full py-2 px-6 bg-amber-500 text-white"
+                >
+                  SI
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : null}
       </div>
     </main>
   );
