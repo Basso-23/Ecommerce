@@ -7,6 +7,17 @@
   color: #151515;
 }
 
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: #ddd;
+}
+::-webkit-scrollbar-thumb {
+  background: #666;
+}
+
 .pageSize {
   max-width: 1250px;
   width: 100%;

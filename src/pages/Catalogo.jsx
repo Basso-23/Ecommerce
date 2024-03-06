@@ -141,17 +141,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                   required
                 />
               </label>
-              <label>
-                URL de Imagen
-                <input
-                  className=" border border-black w-full"
-                  type="text"
-                  name="image"
-                  value={formData.image}
-                  onChange={handleChange}
-                  required
-                />
-              </label>
+
               <label>
                 Categoria
                 <input
@@ -164,9 +154,22 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                 />
               </label>
               <label>
-                Descripcion
+                URL de Imagen
                 <input
                   className=" border border-black w-full"
+                  type="text"
+                  name="image"
+                  value={formData.image}
+                  onChange={handleChange}
+                  required
+                />
+              </label>
+              <label>
+                Descripcion
+                <textarea
+                  className=" border border-black w-full h-40"
+                  rows={4}
+                  cols={40}
                   type="text"
                   name="description"
                   value={formData.description}
@@ -236,10 +239,32 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                     </div>
                     {/* Name */}
                     <div className=" text-xl font-medium">{item.name}</div>
-                    {/* Price */}
-                    <div className="">${item.price.toFixed(2)}</div>
+                    <div className="w-full flex justify-between">
+                      {/* Price */}
+                      <div className="">${item.price.toFixed(2)}</div>
+                      {/* Stock */}
+                      <div
+                        className={
+                          userState === process.env.ADMINID
+                            ? " font-bold"
+                            : "hidden"
+                        }
+                      >
+                        Stock: {item.available_qty}
+                      </div>
+                    </div>
+                    {/* Description */}
+                    <div
+                      className={
+                        userState === process.env.ADMINID
+                          ? "flex w-full h-[150px] overflow-y-auto"
+                          : "hidden"
+                      }
+                    >
+                      {item.description}
+                    </div>
                   </div>
-                  {/* Admin container */}
+                  {/* Admin buttons */}
                   <div
                     className={
                       userState === process.env.ADMINID
@@ -273,7 +298,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
           </section>
         </div>
 
-        {/* Dlete modal container */}
+        {/* Delete modal container */}
         {deleteModal ? (
           <div className="pageSize h-screen flex flex-col justify-center items-center fixed z-50 bg-[#ffffff]">
             <div className="flex flex-col -mt-44 gap-10">
