@@ -49,6 +49,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
 
   //Actualiza el articulo requiere: (nombre de la coleccion y la key del producto a actualizar)
   const firebase_update = async (event) => {
+    setUpdateModal(false);
     event.preventDefault();
     //Tranforma de string a number el precio y las cantidades disponibles
     formDataUpdate.price = Number(formDataUpdate.price);
@@ -277,7 +278,9 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                   {/* Form container*/}
                   <div
                     className={
-                      userState === process.env.ADMINID && item.key === tempKey
+                      userState === process.env.ADMINID &&
+                      item.key === tempKey &&
+                      updateModal
                         ? "flex"
                         : "hidden"
                     }
@@ -374,6 +377,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                         : "hidden"
                     }
                     onClick={() => {
+                      setUpdateModal(true);
                       setTempKey(item.key);
                       formDataUpdate.name = item.name;
                       formDataUpdate.image = item.image;
