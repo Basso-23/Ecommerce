@@ -12,9 +12,14 @@ import {
 import { db } from "@/firebase/firebase";
 
 const Catalogo = ({ catalogo, setCatalogo, userState }) => {
+  //Estado para abrir y cerrar el si estas seguro borrar el producto
   const [deleteModal, setDeleteModal] = useState(false);
+  //Estado para abrir y cerrar el form para editar el producto
   const [updateModal, setUpdateModal] = useState(false);
+  //Guarda la key del producto cuando le das click a borrar o editar
   const [tempKey, setTempKey] = useState("");
+
+  //Guarda la data de CREAR un producto
   const [formData, setFormData] = useState({
     key: "",
     name: "",
@@ -26,6 +31,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
     available_qty: "",
   });
 
+  //Guarda la data de EDITAR un producto
   const [formDataUpdate, setFormDataUpdate] = useState({
     name: "",
     image: "",
@@ -35,13 +41,13 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
     available_qty: "",
   });
 
-  //Se encarga de mostrar los cambios en el input para crear un producto
+  //Se encarga de mostrar los cambios en el input para CREAR un producto
   const handleChange = (event) => {
     const { name, value } = event.target;
     setFormData((prevState) => ({ ...prevState, [name]: value }));
   };
 
-  //Se encarga de mostrar los cambios en el input para crear un producto
+  //Se encarga de mostrar los cambios en el input para EDITAR un producto
   const handleChangeUpdate = (event) => {
     const { name, value } = event.target;
     setFormDataUpdate((prevState) => ({ ...prevState, [name]: value }));
@@ -49,14 +55,16 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
 
   //Actualiza el articulo requiere: (nombre de la coleccion y la key del producto a actualizar)
   const firebase_update = async (event) => {
+    //Cierra el form de editar
     setUpdateModal(false);
     event.preventDefault();
-    //Tranforma de string a number el precio y las cantidades disponibles
+    //Transforma de string a number el precio y las cantidades disponibles
     formDataUpdate.price = Number(formDataUpdate.price);
     formDataUpdate.available_qty = Number(formDataUpdate.available_qty);
-    const dbRef = doc(db, "catalogo", tempKey);
+
+    //Transforma a minusculas el nombre del producto para que uno haya problemas al momento de buscar un producto
     const lowerCaseName = formDataUpdate.name.toLowerCase();
-    await updateDoc(dbRef, {
+    await updateDoc(doc(db, "catalogo", tempKey), {
       name: lowerCaseName,
       image: formDataUpdate.image,
       category: formDataUpdate.category,
@@ -64,10 +72,11 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
       price: formDataUpdate.price,
       available_qty: formDataUpdate.available_qty,
     });
+    //Lee la base de datos y actualiza los datos
     firebase_read();
   };
 
-  //Cuando le dan a agregar producto
+  //Submit de CREAR producto
   const handleSubmit = (event) => {
     event.preventDefault();
     //Asigna una key aleatoria
@@ -77,10 +86,11 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
     formData.price = Number(formData.price);
     formData.available_qty = Number(formData.available_qty);
     console.log(formData);
+    //Escribe los datos en la base de datos
     firebase_write();
   };
 
-  //Funcion que crea la key aleatoria
+  //Funcion que crea la key aleatoria requiere: (cantidad de caracteres que desea)
   function keyMaker(length) {
     let result = "";
     const characters =
@@ -98,6 +108,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
   //Escribe la informacion en la base de datos
   const firebase_write = async () => {
     try {
+      //Transforma a minusculas el nombre del producto para que uno haya problemas al momento de buscar un producto
       const lowerCaseName = formData.name.toLowerCase();
       await setDoc(doc(db, "catalogo", formData.key), {
         key: formData.key,
@@ -109,8 +120,10 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
         qty: formData.qty,
         available_qty: formData.available_qty,
       });
+      //Lee la base de datos y actualiza los datos
       firebase_read();
       console.log("Document written with ID: ", formData.key);
+      //Borra los valores almacenados en el array para asi poder crear un nuevo producto
       formData.key = "";
       formData.name = "";
       formData.image = "";
@@ -124,13 +137,14 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
     }
   };
 
-  //Asigna y Actualiza la informacion de la base de datos seleccionada a una variable "catalogo"
+  //Lee la base de datos y Actualiza la informacion de la base de datos
   const firebase_read = async () => {
     await getDocs(collection(db, "catalogo")).then((querySnapshot) => {
       const newData = querySnapshot.docs.map((doc) => ({
         ...doc.data(),
         id: doc.id,
       }));
+      //Asigna los datos leidos de la base de datos al catalogo
       setCatalogo(newData);
     });
   };
@@ -142,25 +156,26 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
     firebase_read();
   };
 
-  //Muestra en consola la key temporal del producto seleccionado
+  //Muestra en consola la key temporal del producto seleccionado al darle al boton de borrar o editar
   useEffect(() => {
     console.log("TEMP KEY:", tempKey);
   }, [tempKey]);
 
+  //Array contiene la info de catalogo para controlar los filtros
   const [filteredProducts, setFilteredProducts] = useState(catalogo);
 
-  //Actualiza el aaray cada que se actualiza el catalogo
+  //Actualiza el array cada vez que se actualiza el catalogo
   useEffect(() => {
     setFilteredProducts(catalogo);
   }, [catalogo]);
 
+  //Funcion que filtra el array en base a lo que escribe en el input
   const handleFilter = (event) => {
     const value = event.target.value;
-
-    const filtered = catalogo.filter((item) =>
-      item.name.includes(value.toLowerCase())
+    const filtered = catalogo.filter(
+      (item) => item.name.includes(value.toLowerCase()) //Transforma a minusculas el valor del input para que uno haya problemas al momento de buscar un producto
     );
-
+    //Asigna los valores filtrados
     setFilteredProducts(filtered);
   };
 
@@ -324,7 +339,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                     <label>
                       Nombre del Producto
                       <input
-                        className=" border border-black w-full"
+                        className=" border border-black w-full capitalize"
                         type="text"
                         name="name"
                         value={formDataUpdate.name}
