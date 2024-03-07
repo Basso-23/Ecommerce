@@ -18,7 +18,8 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
   const [updateModal, setUpdateModal] = useState(false);
   //Guarda la key del producto cuando le das click a borrar o editar
   const [tempKey, setTempKey] = useState("");
-
+  //Array contiene la info de catalogo para controlar los filtros
+  const [filteredProducts, setFilteredProducts] = useState(catalogo);
   //Guarda la data de CREAR un producto
   const [formData, setFormData] = useState({
     key: "",
@@ -30,7 +31,6 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
     qty: 1,
     available_qty: "",
   });
-
   //Guarda la data de EDITAR un producto
   const [formDataUpdate, setFormDataUpdate] = useState({
     name: "",
@@ -41,19 +41,53 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
     available_qty: "",
   });
 
-  //Se encarga de mostrar los cambios en el input para CREAR un producto
+  //Funcion que crea la key aleatoria requiere: (cantidad de caracteres que desea) //////////////////////////////////////////////////////////////////////////////////////////////
+  function keyMaker(length) {
+    let result = "";
+    const characters =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    const charactersLength = characters.length;
+    let counter = 0;
+    while (counter < length) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+      counter += 1;
+    }
+
+    return result;
+  }
+
+  //Muestra en consola la key temporal del producto seleccionado al darle al boton de borrar o editar //////////////////////////////////////////////////////////////////////////////////////////////
+  useEffect(() => {
+    console.log("TEMP KEY:", tempKey);
+  }, [tempKey]);
+
+  //Se encarga de mostrar los cambios en el input para CREAR un producto //////////////////////////////////////////////////////////////////////////////////////////////
   const handleChange = (event) => {
     const { name, value } = event.target;
     setFormData((prevState) => ({ ...prevState, [name]: value }));
   };
 
-  //Se encarga de mostrar los cambios en el input para EDITAR un producto
+  //SUBMIT de CREAR producto //////////////////////////////////////////////////////////////////////////////////////////////
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    //Asigna una key aleatoria
+    formData.key = keyMaker(10);
+    formData.qty = 1;
+    //Tranforma de string a number el precio y las cantidades disponibles
+    formData.price = Number(formData.price);
+    formData.available_qty = Number(formData.available_qty);
+    console.log(formData);
+    //Escribe los datos en la base de datos
+    firebase_write();
+  };
+
+  //Se encarga de mostrar los cambios en el input para EDITAR un producto //////////////////////////////////////////////////////////////////////////////////////////////
   const handleChangeUpdate = (event) => {
     const { name, value } = event.target;
     setFormDataUpdate((prevState) => ({ ...prevState, [name]: value }));
   };
 
-  //Actualiza el articulo requiere: (nombre de la coleccion y la key del producto a actualizar)
+  //Actualiza el articulo requiere: (nombre de la coleccion y la key del producto a actualizar) //////////////////////////////////////////////////////////////////////////////////////////////
   const firebase_update = async (event) => {
     //Cierra el form de editar
     setUpdateModal(false);
@@ -76,36 +110,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
     firebase_read();
   };
 
-  //Submit de CREAR producto
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    //Asigna una key aleatoria
-    formData.key = keyMaker(10);
-    formData.qty = 1;
-    //Tranforma de string a number el precio y las cantidades disponibles
-    formData.price = Number(formData.price);
-    formData.available_qty = Number(formData.available_qty);
-    console.log(formData);
-    //Escribe los datos en la base de datos
-    firebase_write();
-  };
-
-  //Funcion que crea la key aleatoria requiere: (cantidad de caracteres que desea)
-  function keyMaker(length) {
-    let result = "";
-    const characters =
-      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    const charactersLength = characters.length;
-    let counter = 0;
-    while (counter < length) {
-      result += characters.charAt(Math.floor(Math.random() * charactersLength));
-      counter += 1;
-    }
-
-    return result;
-  }
-
-  //Escribe la informacion en la base de datos
+  //Escribe la informacion en la base de datos //////////////////////////////////////////////////////////////////////////////////////////////
   const firebase_write = async () => {
     try {
       //Transforma a minusculas el nombre del producto para que uno haya problemas al momento de buscar un producto
@@ -137,7 +142,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
     }
   };
 
-  //Lee la base de datos y Actualiza la informacion de la base de datos
+  //Lee la base de datos y Actualiza la informacion de la base de datos //////////////////////////////////////////////////////////////////////////////////////////////
   const firebase_read = async () => {
     await getDocs(collection(db, "catalogo")).then((querySnapshot) => {
       const newData = querySnapshot.docs.map((doc) => ({
@@ -149,31 +154,24 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
     });
   };
 
-  //Borra el articulo requiere: (nombre de la coleccion y la key del producto a borrar)
+  //Borra el articulo requiere: (nombre de la coleccion y la key del producto a borrar) //////////////////////////////////////////////////////////////////////////////////////////////
   const firebase_delete = async (coleccion, key) => {
     await deleteDoc(doc(db, coleccion, key));
     console.log("Articulo borrado", key);
     firebase_read();
   };
 
-  //Muestra en consola la key temporal del producto seleccionado al darle al boton de borrar o editar
-  useEffect(() => {
-    console.log("TEMP KEY:", tempKey);
-  }, [tempKey]);
-
-  //Array contiene la info de catalogo para controlar los filtros
-  const [filteredProducts, setFilteredProducts] = useState(catalogo);
-
-  //Actualiza el array cada vez que se actualiza el catalogo
+  //Actualiza el array cada vez que se actualiza el catalogo //////////////////////////////////////////////////////////////////////////////////////////////
   useEffect(() => {
     setFilteredProducts(catalogo);
   }, [catalogo]);
 
-  //Funcion que filtra el array en base a lo que escribe en el input
+  //Funcion que filtra el array en base a lo que escribe en el input //////////////////////////////////////////////////////////////////////////////////////////////
   const handleFilter = (event) => {
     const value = event.target.value;
     const filtered = catalogo.filter(
-      (item) => item.name.includes(value.toLowerCase()) //Transforma a minusculas el valor del input para que uno haya problemas al momento de buscar un producto
+      //Transforma a minusculas el valor del input para que uno haya problemas al momento de buscar un producto
+      (item) => item.name.includes(value.toLowerCase())
     );
     //Asigna los valores filtrados
     setFilteredProducts(filtered);
