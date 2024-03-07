@@ -171,6 +171,12 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
   useEffect(() => {
     setFilteredProducts(catalogo);
     firebase_read2();
+    const data = catalogo.sort((a, b) => {
+      if (a.index < b.index) {
+        return -1;
+      }
+    });
+    console.log("SORTED", data);
   }, [catalogo]);
 
   //Funcion que filtra el array en base a lo que escribe en el input //////////////////////////////////////////////////////////////////////////////////////////////
@@ -208,11 +214,10 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
       }));
       //Asigna los datos leidos de la base de datos al catalogo
       setVerifyMessage(newData);
-      console.log("VERIFY:", newData);
     });
     {
       verifyMessage.map((item) =>
-        console.log("ESTADO DE MENSAJE", item.cambios_sin_guardar)
+        console.log("CAMBIOS SIN GUARDAR", item.cambios_sin_guardar)
       );
     }
   };
@@ -335,29 +340,29 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
         {/* Right container ////////////////////////////////////////////////////////////////////////////////////////////// */}
         <section className=" flex-1 p-5">
           {/* Boton guardar */}
-          <div className="flex mb-8 gap-4">
+
+          {verifyMessage.map((item, index) => (
             <div
-              className=" px-10 py-2 bg-lime-500 w-fit text-white  cursor-pointer"
-              onClick={() => {
-                indexVerify();
-                verifyFalse();
-              }}
+              key={index}
+              className={
+                item.cambios_sin_guardar ? "flex mb-8 gap-4" : "hidden"
+              }
             >
-              Guardar
-            </div>
-            {verifyMessage.map((item, index) => (
               <div
-                key={index}
-                className={
-                  item.cambios_sin_guardar
-                    ? "flex my-auto text-red-600 font-semibold uppercase text-sm"
-                    : "hidden"
-                }
+                className=" px-10 py-2 bg-amber-500 w-fit text-white  cursor-pointer"
+                onClick={() => {
+                  indexVerify();
+                  verifyFalse();
+                }}
               >
+                Guardar
+              </div>
+              <div className="flex my-auto text-red-600 font-semibold uppercase text-sm">
                 cambios sin guardar
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
+
           {/* Products container */}
           <div className="grid grid-cols-3 gap-x-6 gap-y-10">
             {filteredProducts
@@ -376,8 +381,8 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                         style={{ backgroundImage: `url(${item.image})` }}
                         className=" bg-contain bg-no-repeat mb-2 w-full h-full bg-center"
                       ></div>
-                      <div className=" top-o left-0 absolute bg-amber-500 px-2 text-white">
-                        {item.index}
+                      <div className=" top-o left-0 absolute bg-lime-500 px-2 text-white">
+                        {item.available_qty}
                       </div>
                     </div>
                   </Link>
@@ -398,11 +403,11 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                       <div
                         className={
                           userState === process.env.ADMINID
-                            ? "font-medium text-green-500"
+                            ? "font-medium text-gray-500"
                             : "hidden"
                         }
                       >
-                        Stock: {item.available_qty}
+                        Index: {item.index}
                       </div>
                     </div>
                   </div>
