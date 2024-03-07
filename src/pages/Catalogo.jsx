@@ -18,6 +18,8 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
   const [updateModal, setUpdateModal] = useState(false);
   //Guarda la key del producto cuando le das click a borrar o editar
   const [tempKey, setTempKey] = useState("");
+  //Estado del mensaje que necesita ordenar el index de los productos
+  const [verifyMessage, setVerifyMessage] = useState([]);
   //Array contiene la info de catalogo para controlar los filtros
   const [filteredProducts, setFilteredProducts] = useState(catalogo);
   //Guarda la data de CREAR un producto
@@ -168,13 +170,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
   //Actualiza el array cada vez que se actualiza el catalogo //////////////////////////////////////////////////////////////////////////////////////////////
   useEffect(() => {
     setFilteredProducts(catalogo);
-
-    const data = catalogo.sort((a, b) => {
-      if (a.index < b.index) {
-        return -1;
-      }
-    });
-    console.log("SORTED", data);
+    firebase_read2();
   }, [catalogo]);
 
   //Funcion que filtra el array en base a lo que escribe en el input //////////////////////////////////////////////////////////////////////////////////////////////
@@ -188,6 +184,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
     setFilteredProducts(filtered);
   };
 
+  //Verifica y asigna el index correspondiente a cada producto (se debe usara cada vez que borras algun producto para re asignar los index correctos) //////////////////////////////////////////////////////////////////////////////////////////////
   const indexVerify = async () => {
     const handleVerify = async (key, index) => {
       console.log(key, index);
@@ -201,6 +198,39 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
     {
       catalogo.map((item, index) => handleVerify(item.key, index));
     }
+  };
+
+  const firebase_read2 = async () => {
+    await getDocs(collection(db, "verifyMessage")).then((querySnapshot) => {
+      const newData = querySnapshot.docs.map((doc) => ({
+        ...doc.data(),
+        id: doc.id,
+      }));
+      //Asigna los datos leidos de la base de datos al catalogo
+      setVerifyMessage(newData);
+      console.log("VERIFY:", newData);
+    });
+    {
+      verifyMessage.map((item) =>
+        console.log("ESTADO DE MENSAJE", item.cambios_sin_guardar)
+      );
+    }
+  };
+
+  const verifyTrue = async () => {
+    await updateDoc(doc(db, "verifyMessage", "OOzVQ50JrdJvEAv8H63Z"), {
+      cambios_sin_guardar: true,
+    });
+    //Lee la base de datos y actualiza los datos
+    firebase_read2();
+  };
+
+  const verifyFalse = async () => {
+    await updateDoc(doc(db, "verifyMessage", "OOzVQ50JrdJvEAv8H63Z"), {
+      cambios_sin_guardar: false,
+    });
+    //Lee la base de datos y actualiza los datos
+    firebase_read2();
   };
 
   return (
@@ -304,13 +334,29 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
         </section>
         {/* Right container ////////////////////////////////////////////////////////////////////////////////////////////// */}
         <section className=" flex-1 p-5">
-          <div
-            className=" px-10 py-2 bg-lime-500 w-fit text-white mb-8 cursor-pointer"
-            onClick={() => {
-              indexVerify();
-            }}
-          >
-            Ordenar
+          {/* Boton guardar */}
+          <div className="flex mb-8 gap-4">
+            <div
+              className=" px-10 py-2 bg-lime-500 w-fit text-white  cursor-pointer"
+              onClick={() => {
+                indexVerify();
+                verifyFalse();
+              }}
+            >
+              Guardar
+            </div>
+            {verifyMessage.map((item, index) => (
+              <div
+                key={index}
+                className={
+                  item.cambios_sin_guardar
+                    ? "flex my-auto text-red-600 font-semibold uppercase text-sm"
+                    : "hidden"
+                }
+              >
+                cambios sin guardar
+              </div>
+            ))}
           </div>
           {/* Products container */}
           <div className="grid grid-cols-3 gap-x-6 gap-y-10">
@@ -325,11 +371,14 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                     }}
                   >
                     {/* Image */}
-                    <div className=" w-full h-[350px] justify-center items-center flex bg-[#F1F4F6] shadow-sm ">
+                    <div className=" w-full h-[350px] justify-center items-center flex bg-[#F1F4F6] shadow-sm relative ">
                       <div
                         style={{ backgroundImage: `url(${item.image})` }}
                         className=" bg-contain bg-no-repeat mb-2 w-full h-full bg-center"
                       ></div>
+                      <div className=" top-o left-0 absolute bg-amber-500 px-2 text-white">
+                        {item.index}
+                      </div>
                     </div>
                   </Link>
                   {/* Info container */}
@@ -521,6 +570,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                   onClick={() => {
                     firebase_delete("catalogo", tempKey);
                     setDeleteModal(false);
+                    verifyTrue();
                   }}
                   className="w-full py-2 px-6 bg-amber-500 text-white"
                 >
