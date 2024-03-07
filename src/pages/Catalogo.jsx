@@ -18,9 +18,6 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
   const [updateModal, setUpdateModal] = useState(false);
   //Guarda la key del producto cuando le das click a borrar o editar
   const [tempKey, setTempKey] = useState("");
-
-  const [load, setLoad] = useState(false);
-  const [indexVerify, setIndexVerify] = useState(false);
   //Array contiene la info de catalogo para controlar los filtros
   const [filteredProducts, setFilteredProducts] = useState(catalogo);
   //Guarda la data de CREAR un producto
@@ -33,6 +30,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
     price: "",
     qty: 1,
     available_qty: "",
+    index: 0,
   });
   //Guarda la data de EDITAR un producto
   const [formDataUpdate, setFormDataUpdate] = useState({
@@ -76,12 +74,11 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
     //Asigna una key aleatoria
     formData.key = keyMaker(10);
     formData.qty = 1;
+    formData.index = 0;
     //Tranforma de string a number el precio y las cantidades disponibles
     formData.price = Number(formData.price);
     formData.available_qty = Number(formData.available_qty);
     console.log(formData);
-
-    setLoad(true);
     //Escribe los datos en la base de datos
     firebase_write();
   };
@@ -129,6 +126,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
         price: formData.price,
         qty: formData.qty,
         available_qty: formData.available_qty,
+        index: catalogo.length,
       });
       //Lee la base de datos y actualiza los datos
       firebase_read();
@@ -170,7 +168,6 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
   //Actualiza el array cada vez que se actualiza el catalogo //////////////////////////////////////////////////////////////////////////////////////////////
   useEffect(() => {
     setFilteredProducts(catalogo);
-    indexLoad();
 
     const data = catalogo.sort((a, b) => {
       if (a.index < b.index) {
@@ -191,39 +188,18 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
     setFilteredProducts(filtered);
   };
 
-  const indexLoad = async () => {
-    if (load) {
-      const handleLoad = async (key, index) => {
-        console.log(key, index);
-        await updateDoc(doc(db, "catalogo", key), {
-          index: catalogo.length - index,
-        });
+  const indexVerify = async () => {
+    const handleVerify = async (key, index) => {
+      console.log(key, index);
+      await updateDoc(doc(db, "catalogo", key), {
+        index: index,
+      });
 
-        //Lee la base de datos y actualiza los datos
-        firebase_read();
-      };
-
-      {
-        catalogo.map((item, index) => handleLoad(item.key, index));
-      }
-
-      setLoad(false);
-    }
-    if (indexVerify) {
-      const handleVerify = async (key, index) => {
-        console.log(key, index);
-        await updateDoc(doc(db, "catalogo", key), {
-          index: index + 1,
-        });
-        //Lee la base de datos y actualiza los datos
-        firebase_read();
-      };
-
-      {
-        catalogo.map((item, index) => handleVerify(item.key, index));
-      }
-
-      setIndexVerify(false);
+      //Lee la base de datos y actualiza los datos
+      firebase_read();
+    };
+    {
+      catalogo.map((item, index) => handleVerify(item.key, index));
     }
   };
 
@@ -328,6 +304,14 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
         </section>
         {/* Right container ////////////////////////////////////////////////////////////////////////////////////////////// */}
         <section className=" flex-1 p-5">
+          <div
+            className=" px-10 py-2 bg-lime-500 w-fit text-white mb-8 cursor-pointer"
+            onClick={() => {
+              indexVerify();
+            }}
+          >
+            Ordenar
+          </div>
           {/* Products container */}
           <div className="grid grid-cols-3 gap-x-6 gap-y-10">
             {filteredProducts
@@ -537,8 +521,6 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                   onClick={() => {
                     firebase_delete("catalogo", tempKey);
                     setDeleteModal(false);
-                    setIndexVerify(true);
-                    indexLoad();
                   }}
                   className="w-full py-2 px-6 bg-amber-500 text-white"
                 >
