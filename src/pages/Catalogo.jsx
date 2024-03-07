@@ -20,7 +20,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
   const [tempKey, setTempKey] = useState("");
 
   const [load, setLoad] = useState(false);
-
+  const [indexVerify, setIndexVerify] = useState(false);
   //Array contiene la info de catalogo para controlar los filtros
   const [filteredProducts, setFilteredProducts] = useState(catalogo);
   //Guarda la data de CREAR un producto
@@ -170,9 +170,14 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
   //Actualiza el array cada vez que se actualiza el catalogo //////////////////////////////////////////////////////////////////////////////////////////////
   useEffect(() => {
     setFilteredProducts(catalogo);
-    if (load) {
-      indexLoad();
-    }
+    indexLoad();
+
+    const data = catalogo.sort((a, b) => {
+      if (a.index < b.index) {
+        return -1;
+      }
+    });
+    console.log("SORTED", data);
   }, [catalogo]);
 
   //Funcion que filtra el array en base a lo que escribe en el input //////////////////////////////////////////////////////////////////////////////////////////////
@@ -187,19 +192,38 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
   };
 
   const indexLoad = async () => {
-    const handleLoad = async (key, index) => {
-      console.log(key, index);
-      await updateDoc(doc(db, "catalogo", key), {
-        index: index,
-      });
-      //Lee la base de datos y actualiza los datos
-      firebase_read();
-    };
+    if (load) {
+      const handleLoad = async (key, index) => {
+        console.log(key, index);
+        await updateDoc(doc(db, "catalogo", key), {
+          index: catalogo.length,
+        });
+        //Lee la base de datos y actualiza los datos
+        firebase_read();
+      };
 
-    {
-      catalogo.map((item, index) => handleLoad(item.key, index));
+      {
+        catalogo.map((item, index) => handleLoad(item.key, index));
+      }
+
+      setLoad(false);
     }
-    setLoad(false);
+    if (indexVerify) {
+      const handleVerify = async (key, index) => {
+        console.log(key, index);
+        await updateDoc(doc(db, "catalogo", key), {
+          index: index + 1,
+        });
+        //Lee la base de datos y actualiza los datos
+        firebase_read();
+      };
+
+      {
+        catalogo.map((item, index) => handleVerify(item.key, index));
+      }
+
+      setIndexVerify(false);
+    }
   };
 
   return (
@@ -508,6 +532,8 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                   onClick={() => {
                     firebase_delete("catalogo", tempKey);
                     setDeleteModal(false);
+                    setIndexVerify(true);
+                    indexLoad();
                   }}
                   className="w-full py-2 px-6 bg-amber-500 text-white"
                 >
