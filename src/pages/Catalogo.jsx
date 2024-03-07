@@ -180,8 +180,9 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
   return (
     <main>
       <div className=" flex">
-        {/* Left container*/}
-        <div className=" w-[250px] h-[800px] p-5 gap-6 flex flex-col">
+        {/* Left container ////////////////////////////////////////////////////////////////////////////////////////////// */}
+        <section className=" w-[250px] h-[800px] p-5 gap-6 flex flex-col">
+          {/* Search input*/}
           <div>
             Search
             <input
@@ -191,7 +192,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
             />
           </div>
           <div className="w-full h-64 border"></div>
-          {/* Form container*/}
+          {/* CREAR producto form -------------------------------------------------------------------*/}
           <div
             className={userState === process.env.ADMINID ? "flex" : "hidden"}
           >
@@ -267,7 +268,6 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                   required
                 />
               </label>
-
               <input
                 className=" w-full py-2 bg-amber-500 text-white cursor-pointer"
                 type="submit"
@@ -275,20 +275,21 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
               />
             </form>
           </div>
-        </div>
-        {/* Right container */}
-        <div className=" flex-1 p-5">
-          {/* Products---------------------------------------------------------------------------------------------- */}
-          <section className="grid grid-cols-3 gap-x-6 gap-y-10">
+        </section>
+        {/* Right container ////////////////////////////////////////////////////////////////////////////////////////////// */}
+        <section className=" flex-1 p-5">
+          {/* Products container */}
+          <div className="grid grid-cols-3 gap-x-6 gap-y-10">
             {filteredProducts.map((item) => (
               <div key={item.key}>
-                {/* Image with dynamic routing */}
+                {/* Link dynamic routing */}
                 <Link
                   href={{
                     pathname: "/product/[id]",
                     query: { id: item.key },
                   }}
                 >
+                  {/* Image */}
                   <div className=" w-full h-[350px] justify-center items-center flex bg-[#F1F4F6] shadow-sm ">
                     <div
                       style={{ backgroundImage: `url(${item.image})` }}
@@ -304,7 +305,6 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                   <div className=" text-xl font-medium capitalize">
                     {item.name}
                   </div>
-
                   <div className=" flex justify-between">
                     {/* Price */}
                     <div className="">${item.price.toFixed(2)}</div>
@@ -320,7 +320,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                     </div>
                   </div>
                 </div>
-                {/* Form container*/}
+                {/* EDITAR producto form -------------------------------------------------------------------*/}
                 <div
                   className={
                     userState === process.env.ADMINID &&
@@ -345,7 +345,6 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                         required
                       />
                     </label>
-
                     <label>
                       Categoria
                       <input
@@ -381,7 +380,6 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                         required
                       />
                     </label>
-
                     <label>
                       Precio 💸
                       <input
@@ -393,7 +391,6 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                         required
                       />
                     </label>
-
                     <label>
                       Cantidad en Stock
                       <input
@@ -405,13 +402,14 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                         required
                       />
                     </label>
-
                     <input
                       className=" w-full py-2 bg-amber-500 text-white cursor-pointer"
                       type="submit"
                       value="GUARDAR"
                     />
                   </form>
+
+                  {/* Cerrar form */}
                   <div
                     onClick={() => {
                       setUpdateModal(false);
@@ -422,7 +420,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                   </div>
                 </div>
 
-                {/* Modificar Producto */}
+                {/* Editar Producto */}
                 <button
                   className={
                     userState === process.env.ADMINID && !updateModal
@@ -432,6 +430,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                   onClick={() => {
                     setUpdateModal(true);
                     setTempKey(item.key);
+                    // Asigna los valores del producto para que se vean en el form de EDITAR
                     formDataUpdate.name = item.name;
                     formDataUpdate.image = item.image;
                     formDataUpdate.category = item.category;
@@ -440,7 +439,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                     formDataUpdate.available_qty = item.available_qty;
                   }}
                 >
-                  MODIFICAR
+                  EDITAR
                 </button>
 
                 {/* Borrar Producto */}
@@ -459,8 +458,8 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                 </button>
               </div>
             ))}
-          </section>
-        </div>
+          </div>
+        </section>
 
         {/* Delete modal container */}
         {deleteModal ? (
