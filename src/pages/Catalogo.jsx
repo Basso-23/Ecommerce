@@ -18,6 +18,9 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
   const [updateModal, setUpdateModal] = useState(false);
   //Guarda la key del producto cuando le das click a borrar o editar
   const [tempKey, setTempKey] = useState("");
+
+  const [load, setLoad] = useState(false);
+
   //Array contiene la info de catalogo para controlar los filtros
   const [filteredProducts, setFilteredProducts] = useState(catalogo);
   //Guarda la data de CREAR un producto
@@ -77,6 +80,8 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
     formData.price = Number(formData.price);
     formData.available_qty = Number(formData.available_qty);
     console.log(formData);
+
+    setLoad(true);
     //Escribe los datos en la base de datos
     firebase_write();
   };
@@ -127,6 +132,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
       });
       //Lee la base de datos y actualiza los datos
       firebase_read();
+
       console.log("Document written with ID: ", formData.key);
       //Borra los valores almacenados en el array para asi poder crear un nuevo producto
       formData.key = "";
@@ -164,6 +170,9 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
   //Actualiza el array cada vez que se actualiza el catalogo //////////////////////////////////////////////////////////////////////////////////////////////
   useEffect(() => {
     setFilteredProducts(catalogo);
+    if (load) {
+      indexLoad();
+    }
   }, [catalogo]);
 
   //Funcion que filtra el array en base a lo que escribe en el input //////////////////////////////////////////////////////////////////////////////////////////////
@@ -175,6 +184,22 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
     );
     //Asigna los valores filtrados
     setFilteredProducts(filtered);
+  };
+
+  const indexLoad = async () => {
+    const handleLoad = async (key, index) => {
+      console.log(key, index);
+      await updateDoc(doc(db, "catalogo", key), {
+        index: index,
+      });
+      //Lee la base de datos y actualiza los datos
+      firebase_read();
+    };
+
+    {
+      catalogo.map((item, index) => handleLoad(item.key, index));
+    }
+    setLoad(false);
   };
 
   return (
