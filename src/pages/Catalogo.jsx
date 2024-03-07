@@ -55,8 +55,9 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
     formDataUpdate.price = Number(formDataUpdate.price);
     formDataUpdate.available_qty = Number(formDataUpdate.available_qty);
     const dbRef = doc(db, "catalogo", tempKey);
+    const lowerCaseName = formDataUpdate.name.toLowerCase();
     await updateDoc(dbRef, {
-      name: formDataUpdate.name,
+      name: lowerCaseName,
       image: formDataUpdate.image,
       category: formDataUpdate.category,
       description: formDataUpdate.description,
@@ -97,9 +98,10 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
   //Escribe la informacion en la base de datos
   const firebase_write = async () => {
     try {
+      const lowerCaseName = formData.name.toLowerCase();
       await setDoc(doc(db, "catalogo", formData.key), {
         key: formData.key,
-        name: formData.name,
+        name: lowerCaseName,
         image: formData.image,
         category: formData.category,
         description: formData.description,
@@ -145,11 +147,36 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
     console.log("TEMP KEY:", tempKey);
   }, [tempKey]);
 
+  const [filteredProducts, setFilteredProducts] = useState(catalogo);
+
+  //Actualiza el aaray cada que se actualiza el catalogo
+  useEffect(() => {
+    setFilteredProducts(catalogo);
+  }, [catalogo]);
+
+  const handleFilter = (event) => {
+    const value = event.target.value;
+
+    const filtered = catalogo.filter((item) =>
+      item.name.includes(value.toLowerCase())
+    );
+
+    setFilteredProducts(filtered);
+  };
+
   return (
     <main>
       <div className=" flex">
         {/* Left container*/}
         <div className=" w-[250px] h-[800px] p-5 gap-6 flex flex-col">
+          <div>
+            Search
+            <input
+              type="text"
+              className="capitalize border"
+              onChange={handleFilter}
+            />
+          </div>
           <div className="w-full h-64 border"></div>
           {/* Form container*/}
           <div
@@ -240,187 +267,185 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
         <div className=" flex-1 p-5">
           {/* Products---------------------------------------------------------------------------------------------- */}
           <section className="grid grid-cols-3 gap-x-6 gap-y-10">
-            {catalogo
-              .map((item) => (
-                <div key={item.key}>
-                  {/* Image with dynamic routing */}
-                  <Link
-                    href={{
-                      pathname: "/product/[id]",
-                      query: { id: item.key },
-                    }}
-                  >
-                    <div className=" w-full h-[350px] justify-center items-center flex bg-[#F1F4F6] shadow-sm ">
-                      <div
-                        style={{ backgroundImage: `url(${item.image})` }}
-                        className=" bg-contain bg-no-repeat mb-2 w-full h-full bg-center"
-                      ></div>
-                    </div>
-                  </Link>
-                  {/* Info container */}
-                  <div className="flex flex-col gap-2 mt-4">
-                    {/* Category */}
-                    <div className=" text-sm text-zinc-400">
-                      {item.category}
-                    </div>
-                    {/* Name */}
-                    <div className=" text-xl font-medium">{item.name}</div>
-
-                    <div className=" flex justify-between">
-                      {/* Price */}
-                      <div className="">${item.price.toFixed(2)}</div>
-                      {/* Stock */}
-                      <div
-                        className={
-                          userState === process.env.ADMINID
-                            ? "font-medium text-green-500"
-                            : "hidden"
-                        }
-                      >
-                        Stock: {item.available_qty}
-                      </div>
-                    </div>
-                  </div>
-                  {/* Form container*/}
-                  <div
-                    className={
-                      userState === process.env.ADMINID &&
-                      item.key === tempKey &&
-                      updateModal
-                        ? "flex relative"
-                        : "hidden"
-                    }
-                  >
-                    <form
-                      className="flex flex-col gap-4 mt-4 "
-                      onSubmit={firebase_update}
-                    >
-                      <label>
-                        Nombre del Producto
-                        <input
-                          className=" border border-black w-full"
-                          type="text"
-                          name="name"
-                          value={formDataUpdate.name}
-                          onChange={handleChangeUpdate}
-                          required
-                        />
-                      </label>
-
-                      <label>
-                        Categoria
-                        <input
-                          className=" border border-black w-full"
-                          type="text"
-                          name="category"
-                          value={formDataUpdate.category}
-                          onChange={handleChangeUpdate}
-                          required
-                        />
-                      </label>
-                      <label>
-                        URL de Imagen
-                        <input
-                          className=" border border-black w-full"
-                          type="text"
-                          name="image"
-                          value={formDataUpdate.image}
-                          onChange={handleChangeUpdate}
-                          required
-                        />
-                      </label>
-                      <label>
-                        Descripcion
-                        <textarea
-                          className=" border border-black w-full h-40"
-                          rows={4}
-                          cols={40}
-                          type="text"
-                          name="description"
-                          value={formDataUpdate.description}
-                          onChange={handleChangeUpdate}
-                          required
-                        />
-                      </label>
-
-                      <label>
-                        Precio 💸
-                        <input
-                          className=" border border-black w-full"
-                          type="number"
-                          name="price"
-                          value={formDataUpdate.price}
-                          onChange={handleChangeUpdate}
-                          required
-                        />
-                      </label>
-
-                      <label>
-                        Cantidad en Stock
-                        <input
-                          className=" border border-black w-full"
-                          type="number"
-                          name="available_qty"
-                          value={formDataUpdate.available_qty}
-                          onChange={handleChangeUpdate}
-                          required
-                        />
-                      </label>
-
-                      <input
-                        className=" w-full py-2 bg-amber-500 text-white cursor-pointer"
-                        type="submit"
-                        value="GUARDAR"
-                      />
-                    </form>
+            {filteredProducts.map((item) => (
+              <div key={item.key}>
+                {/* Image with dynamic routing */}
+                <Link
+                  href={{
+                    pathname: "/product/[id]",
+                    query: { id: item.key },
+                  }}
+                >
+                  <div className=" w-full h-[350px] justify-center items-center flex bg-[#F1F4F6] shadow-sm ">
                     <div
-                      onClick={() => {
-                        setUpdateModal(false);
-                      }}
-                      className=" absolute right-0 top-0 cursor-pointer text-lg bg-red-600 text-white px-3 py-0"
-                    >
-                      X
-                    </div>
+                      style={{ backgroundImage: `url(${item.image})` }}
+                      className=" bg-contain bg-no-repeat mb-2 w-full h-full bg-center"
+                    ></div>
+                  </div>
+                </Link>
+                {/* Info container */}
+                <div className="flex flex-col gap-2 mt-4">
+                  {/* Category */}
+                  <div className=" text-sm text-zinc-400">{item.category}</div>
+                  {/* Name */}
+                  <div className=" text-xl font-medium capitalize">
+                    {item.name}
                   </div>
 
-                  {/* Modificar Producto */}
-                  <button
-                    className={
-                      userState === process.env.ADMINID && !updateModal
-                        ? "border py-2 w-full mt-4"
-                        : "hidden"
-                    }
-                    onClick={() => {
-                      setUpdateModal(true);
-                      setTempKey(item.key);
-                      formDataUpdate.name = item.name;
-                      formDataUpdate.image = item.image;
-                      formDataUpdate.category = item.category;
-                      formDataUpdate.description = item.description;
-                      formDataUpdate.price = item.price;
-                      formDataUpdate.available_qty = item.available_qty;
-                    }}
-                  >
-                    MODIFICAR
-                  </button>
-
-                  {/* Borrar Producto */}
-                  <button
-                    className={
-                      userState === process.env.ADMINID
-                        ? "border py-2 w-full mt-4"
-                        : "hidden"
-                    }
-                    onClick={() => {
-                      setDeleteModal(true);
-                      setTempKey(item.key);
-                    }}
-                  >
-                    BORRAR
-                  </button>
+                  <div className=" flex justify-between">
+                    {/* Price */}
+                    <div className="">${item.price.toFixed(2)}</div>
+                    {/* Stock */}
+                    <div
+                      className={
+                        userState === process.env.ADMINID
+                          ? "font-medium text-green-500"
+                          : "hidden"
+                      }
+                    >
+                      Stock: {item.available_qty}
+                    </div>
+                  </div>
                 </div>
-              ))
-              .reverse()}
+                {/* Form container*/}
+                <div
+                  className={
+                    userState === process.env.ADMINID &&
+                    item.key === tempKey &&
+                    updateModal
+                      ? "flex relative"
+                      : "hidden"
+                  }
+                >
+                  <form
+                    className="flex flex-col gap-4 mt-4 "
+                    onSubmit={firebase_update}
+                  >
+                    <label>
+                      Nombre del Producto
+                      <input
+                        className=" border border-black w-full"
+                        type="text"
+                        name="name"
+                        value={formDataUpdate.name}
+                        onChange={handleChangeUpdate}
+                        required
+                      />
+                    </label>
+
+                    <label>
+                      Categoria
+                      <input
+                        className=" border border-black w-full"
+                        type="text"
+                        name="category"
+                        value={formDataUpdate.category}
+                        onChange={handleChangeUpdate}
+                        required
+                      />
+                    </label>
+                    <label>
+                      URL de Imagen
+                      <input
+                        className=" border border-black w-full"
+                        type="text"
+                        name="image"
+                        value={formDataUpdate.image}
+                        onChange={handleChangeUpdate}
+                        required
+                      />
+                    </label>
+                    <label>
+                      Descripcion
+                      <textarea
+                        className=" border border-black w-full h-40"
+                        rows={4}
+                        cols={40}
+                        type="text"
+                        name="description"
+                        value={formDataUpdate.description}
+                        onChange={handleChangeUpdate}
+                        required
+                      />
+                    </label>
+
+                    <label>
+                      Precio 💸
+                      <input
+                        className=" border border-black w-full"
+                        type="number"
+                        name="price"
+                        value={formDataUpdate.price}
+                        onChange={handleChangeUpdate}
+                        required
+                      />
+                    </label>
+
+                    <label>
+                      Cantidad en Stock
+                      <input
+                        className=" border border-black w-full"
+                        type="number"
+                        name="available_qty"
+                        value={formDataUpdate.available_qty}
+                        onChange={handleChangeUpdate}
+                        required
+                      />
+                    </label>
+
+                    <input
+                      className=" w-full py-2 bg-amber-500 text-white cursor-pointer"
+                      type="submit"
+                      value="GUARDAR"
+                    />
+                  </form>
+                  <div
+                    onClick={() => {
+                      setUpdateModal(false);
+                    }}
+                    className=" absolute right-0 top-0 cursor-pointer text-lg bg-red-600 text-white px-3 py-0"
+                  >
+                    X
+                  </div>
+                </div>
+
+                {/* Modificar Producto */}
+                <button
+                  className={
+                    userState === process.env.ADMINID && !updateModal
+                      ? "border py-2 w-full mt-4"
+                      : "hidden"
+                  }
+                  onClick={() => {
+                    setUpdateModal(true);
+                    setTempKey(item.key);
+                    formDataUpdate.name = item.name;
+                    formDataUpdate.image = item.image;
+                    formDataUpdate.category = item.category;
+                    formDataUpdate.description = item.description;
+                    formDataUpdate.price = item.price;
+                    formDataUpdate.available_qty = item.available_qty;
+                  }}
+                >
+                  MODIFICAR
+                </button>
+
+                {/* Borrar Producto */}
+                <button
+                  className={
+                    userState === process.env.ADMINID && !updateModal
+                      ? "border py-2 w-full mt-4"
+                      : "hidden"
+                  }
+                  onClick={() => {
+                    setDeleteModal(true);
+                    setTempKey(item.key);
+                  }}
+                >
+                  BORRAR
+                </button>
+              </div>
+            ))}
           </section>
         </div>
 

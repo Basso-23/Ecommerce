@@ -3,8 +3,35 @@ import Link from "next/link";
 import { products_db } from "@/json/products_db";
 
 const Inicio = ({ catalogo, setCatalogo }) => {
+  const users = [
+    { name: "John", age: 25 },
+    { name: "Mary", age: 30 },
+    { name: "Jane", age: 20 },
+    { name: "Bob", age: 35 },
+  ];
+
+  const [filteredUsers, setFilteredUsers] = useState(users);
+
+  const handleFilter = (event) => {
+    const value = event.target.value;
+    const filtered = users.filter((user) => user.name.includes(value));
+    setFilteredUsers(filtered);
+  };
   return (
     <main>
+      <div>
+        <input
+          type="text"
+          className="capitalize border"
+          onChange={handleFilter}
+        />
+        {filteredUsers.map((user) => (
+          <div key={user.name}>
+            <p>Name: {user.name}</p>
+            <p>Age: {user.age}</p>
+          </div>
+        ))}
+      </div>
       <div>INICIO</div>
       {/* Products---------------------------------------------------------------------------------------------- */}
       <section className="flex justify-center gap-4 h-fit flex-wrap">
