@@ -195,6 +195,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
       categories.add(product.category);
     });
 
+    //Se encarga de el manejor de categorias, si detecta una categoria que no existe cuando el catalogo se actualiza la agrega automaticamente
     const uniqueCategories = Array.from(categories);
     setCategorias(uniqueCategories);
   }, [catalogo]);
@@ -259,6 +260,15 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
     firebase_verify_message();
   };
 
+  //Filtra el array con la categoria seleccionada //////////////////////////////////////////////////////////////////////////////////////////////
+  const categorySelection = async (category) => {
+    const filtered = catalogo.filter((item) =>
+      item.category.includes(category)
+    );
+    //Asigna los valores filtrados
+    setFilteredProducts(filtered);
+  };
+
   return (
     <main>
       <div className=" flex">
@@ -269,17 +279,37 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
             Search
             <input
               type="text"
-              className="capitalize border"
+              className="capitalize border mt-2"
               onChange={handleFilter}
             />
           </div>
           {/* Categories container*/}
           <div>
             Categorias
-            <div className="w-full p-2 border">
-              {categorias.map((item, index) => (
-                <div key={index}>{item}</div>
-              ))}
+            <div className="w-full font-medium capitalize mt-2">
+              {/* Todos los productos */}
+              <div
+                className=" cursor-pointer hover:text-amber-500 w-fit mb-2 "
+                onClick={() => {
+                  categorySelection("");
+                }}
+              >
+                All
+              </div>
+              {/* Map de las categorias*/}
+              <div className="flex flex-col gap-2">
+                {categorias.map((item, index) => (
+                  <div
+                    className=" cursor-pointer hover:text-amber-500 w-fit "
+                    onClick={() => {
+                      categorySelection(item);
+                    }}
+                    key={index}
+                  >
+                    {item}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
           {/* CREAR producto form -------------------------------------------------------------------*/}
