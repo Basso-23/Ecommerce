@@ -390,24 +390,65 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                         style={{ backgroundImage: `url(${item.image})` }}
                         className=" bg-contain bg-no-repeat mb-2 w-full h-full bg-center"
                       ></div>
+                      {/* Index y stock container */}
                       <div
                         className={
                           userState === process.env.ADMINID ? "flex" : "hidden"
                         }
                       >
                         {/* Stock */}
-                        <div className=" top-0 left-0 absolute bg-lime-500 px-2 py-1 text-white">
+                        <div className="top-0 right-0 absolute bg-lime-500 px-2 py-1 text-white">
                           Stock: {item.available_qty}
                         </div>
                         {/* Index */}
-                        <div className=" top-0 right-0 absolute bg-rose-500 px-2 py-1 text-white">
-                          Index: {item.index}
+                        <div className=" top-0 left-1   absolute text-gray-300">
+                          {item.index}
                         </div>
                       </div>
                     </div>
                   </Link>
-                  {/* Info container */}
-                  <div className="flex flex-col gap-2 mt-4">
+                  {/* Botones de productos container */}
+                  <div
+                    className={
+                      userState === process.env.ADMINID
+                        ? "flex justify-end gap-0"
+                        : "hidden"
+                    }
+                  >
+                    {/* Editar Producto */}
+                    <button
+                      className=" bg-lime-500 px-2 py-1 text-white"
+                      onClick={() => {
+                        setUpdateModal(!updateModal);
+                        setTempKey(item.key);
+                        // Asigna los valores del producto para que se vean en el form de EDITAR
+                        formDataUpdate.name = item.name;
+                        formDataUpdate.image = item.image;
+                        formDataUpdate.category = item.category;
+                        formDataUpdate.description = item.description;
+                        formDataUpdate.price = item.price;
+                        formDataUpdate.available_qty = item.available_qty;
+                      }}
+                    >
+                      ⚙️
+                    </button>
+                    {/* Borrar Producto */}
+                    <button
+                      className="bg-rose-500 px-2 py-1 text-white"
+                      onClick={() => {
+                        setDeleteModal(true);
+                        setTempKey(item.key);
+                      }}
+                    >
+                      🗑️
+                    </button>
+                  </div>
+                  {/* Producto info container */}
+                  <div
+                    className={
+                      updateModal ? "hidden" : "flex flex-col gap-2 mt-4"
+                    }
+                  >
                     {/* Category */}
                     <div className=" text-sm text-zinc-400 capitalize">
                       {item.category}
@@ -433,6 +474,11 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                       className="flex flex-col gap-4 mt-4 "
                       onSubmit={firebase_update}
                     >
+                      <input
+                        className=" w-full py-2 bg-amber-500 text-white cursor-pointer"
+                        type="submit"
+                        value="GUARDAR"
+                      />
                       <label>
                         Nombre del Producto
                         <input
@@ -501,60 +547,8 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                           required
                         />
                       </label>
-                      <input
-                        className=" w-full py-2 bg-amber-500 text-white cursor-pointer"
-                        type="submit"
-                        value="GUARDAR"
-                      />
                     </form>
-
-                    {/* Cerrar form */}
-                    <div
-                      onClick={() => {
-                        setUpdateModal(false);
-                      }}
-                      className=" absolute right-0 top-0 cursor-pointer text-lg bg-red-600 text-white px-3 py-0"
-                    >
-                      X
-                    </div>
                   </div>
-
-                  {/* Editar Producto */}
-                  <button
-                    className={
-                      userState === process.env.ADMINID && !updateModal
-                        ? "border py-2 w-full mt-4"
-                        : "hidden"
-                    }
-                    onClick={() => {
-                      setUpdateModal(true);
-                      setTempKey(item.key);
-                      // Asigna los valores del producto para que se vean en el form de EDITAR
-                      formDataUpdate.name = item.name;
-                      formDataUpdate.image = item.image;
-                      formDataUpdate.category = item.category;
-                      formDataUpdate.description = item.description;
-                      formDataUpdate.price = item.price;
-                      formDataUpdate.available_qty = item.available_qty;
-                    }}
-                  >
-                    EDITAR
-                  </button>
-
-                  {/* Borrar Producto */}
-                  <button
-                    className={
-                      userState === process.env.ADMINID && !updateModal
-                        ? "border py-2 w-full mt-4"
-                        : "hidden"
-                    }
-                    onClick={() => {
-                      setDeleteModal(true);
-                      setTempKey(item.key);
-                    }}
-                  >
-                    BORRAR
-                  </button>
                 </div>
               ))
               .reverse()}
