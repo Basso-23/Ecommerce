@@ -20,6 +20,8 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
   const [tempKey, setTempKey] = useState("");
   //Estado del mensaje que si necesita guardar los cambios
   const [verifyMessage, setVerifyMessage] = useState([]);
+  //Estado del si edito un producto para despues darle a guardar
+  const [updateChange, setUpdateChange] = useState(false);
   //Array contiene la info de catalogo para controlar los filtros
   const [filteredProducts, setFilteredProducts] = useState(catalogo);
   //Guarda la data de CREAR un producto
@@ -89,6 +91,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
   const handleChangeUpdate = (event) => {
     const { name, value } = event.target;
     setFormDataUpdate((prevState) => ({ ...prevState, [name]: value }));
+    setUpdateChange(true);
   };
 
   //Actualiza el articulo requiere: (nombre de la coleccion y la key del producto a actualizar) //////////////////////////////////////////////////////////////////////////////////////////////
@@ -112,6 +115,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
     });
     //Lee la base de datos y actualiza los datos
     firebase_read();
+    setUpdateChange(false);
   };
 
   //Escribe la informacion en la base de datos //////////////////////////////////////////////////////////////////////////////////////////////
@@ -418,7 +422,12 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                       className=" bg-lime-500 px-2 py-1 text-white"
                       onClick={() => {
                         //Si el producto es el seleccionado cuando le de denuevo al icono de editar se cerrara, si la da al icono de otro porducto se le abrira el modal de ese producto
-                        setUpdateModal(!updateModal);
+                        if (tempKey === item.key) {
+                          setUpdateModal(!updateModal);
+                        } else {
+                          setUpdateModal(true);
+                        }
+                        setUpdateChange(false);
                         setTempKey(item.key);
                         // Asigna los valores del producto para que se vean en el form de EDITAR
                         formDataUpdate.name = item.name;
@@ -443,7 +452,11 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                     </button>
                   </div>
                   {/* Info container */}
-                  <div className="flex flex-col gap-2 mt-4">
+                  <div
+                    className={
+                      !updateModal ? "flex flex-col gap-2 mt-4" : "hidden"
+                    }
+                  >
                     {/* Category */}
                     <div className=" text-sm text-zinc-400">
                       {item.category}
@@ -538,21 +551,15 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                         />
                       </label>
                       <input
-                        className=" w-full py-2 bg-amber-500 text-white cursor-pointer"
+                        className={
+                          updateChange
+                            ? "w-full py-2 bg-amber-500 text-white cursor-pointer"
+                            : "w-full py-2 bg-gray-200 text-white pointer-events-none"
+                        }
                         type="submit"
                         value="GUARDAR"
                       />
                     </form>
-
-                    {/* Cerrar form */}
-                    <div
-                      onClick={() => {
-                        setUpdateModal(false);
-                      }}
-                      className=" absolute right-0 top-0 cursor-pointer text-lg bg-red-600 text-white px-3 py-0"
-                    >
-                      X
-                    </div>
                   </div>
                 </div>
               ))
