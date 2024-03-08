@@ -601,6 +601,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
           </div>
         ) : null}
       </div>
+      <div className=" min-h-screen"></div>
     </main>
   );
 };
