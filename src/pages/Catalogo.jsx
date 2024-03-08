@@ -102,11 +102,10 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
 
     //Transforma a minusculas el nombre del producto para que uno haya problemas al momento de buscar un producto
     const lowerCaseName = formDataUpdate.name.toLowerCase();
-    const lowerCaseCategory = formDataUpdate.category.toLowerCase();
     await updateDoc(doc(db, "catalogo", tempKey), {
       name: lowerCaseName,
       image: formDataUpdate.image,
-      category: lowerCaseCategory,
+      category: formDataUpdate.category,
       description: formDataUpdate.description,
       price: formDataUpdate.price,
       available_qty: formDataUpdate.available_qty,
@@ -120,12 +119,11 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
     try {
       //Transforma a minusculas el nombre del producto para que uno haya problemas al momento de buscar un producto
       const lowerCaseName = formData.name.toLowerCase();
-      const lowerCaseCategory = formDataUpdate.category.toLowerCase();
       await setDoc(doc(db, "catalogo", formData.key), {
         key: formData.key,
         name: lowerCaseName,
         image: formData.image,
-        category: lowerCaseCategory,
+        category: formData.category,
         description: formData.description,
         price: formData.price,
         qty: formData.qty,
@@ -419,6 +417,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                     <button
                       className=" bg-lime-500 px-2 py-1 text-white"
                       onClick={() => {
+                        //Si el producto es el seleccionado cuando le de denuevo al icono de editar se cerrara, si la da al icono de otro porducto se le abrira el modal de ese producto
                         setUpdateModal(!updateModal);
                         setTempKey(item.key);
                         // Asigna los valores del producto para que se vean en el form de EDITAR
@@ -443,14 +442,10 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                       🗑️
                     </button>
                   </div>
-                  {/* Producto info container */}
-                  <div
-                    className={
-                      updateModal ? "hidden" : "flex flex-col gap-2 mt-4"
-                    }
-                  >
+                  {/* Info container */}
+                  <div className="flex flex-col gap-2 mt-4">
                     {/* Category */}
-                    <div className=" text-sm text-zinc-400 capitalize">
+                    <div className=" text-sm text-zinc-400">
                       {item.category}
                     </div>
                     {/* Name */}
@@ -474,11 +469,6 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                       className="flex flex-col gap-4 mt-4 "
                       onSubmit={firebase_update}
                     >
-                      <input
-                        className=" w-full py-2 bg-amber-500 text-white cursor-pointer"
-                        type="submit"
-                        value="GUARDAR"
-                      />
                       <label>
                         Nombre del Producto
                         <input
@@ -547,7 +537,22 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                           required
                         />
                       </label>
+                      <input
+                        className=" w-full py-2 bg-amber-500 text-white cursor-pointer"
+                        type="submit"
+                        value="GUARDAR"
+                      />
                     </form>
+
+                    {/* Cerrar form */}
+                    <div
+                      onClick={() => {
+                        setUpdateModal(false);
+                      }}
+                      className=" absolute right-0 top-0 cursor-pointer text-lg bg-red-600 text-white px-3 py-0"
+                    >
+                      X
+                    </div>
                   </div>
                 </div>
               ))
