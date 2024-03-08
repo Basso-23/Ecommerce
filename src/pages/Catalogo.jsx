@@ -105,10 +105,11 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
 
     //Transforma a minusculas el nombre del producto para que uno haya problemas al momento de buscar un producto
     const lowerCaseName = formDataUpdate.name.toLowerCase();
+    const lowerCaseCategory = formDataUpdate.category.toLowerCase();
     await updateDoc(doc(db, "catalogo", tempKey), {
       name: lowerCaseName,
       image: formDataUpdate.image,
-      category: formDataUpdate.category,
+      category: lowerCaseCategory,
       description: formDataUpdate.description,
       price: formDataUpdate.price,
       available_qty: formDataUpdate.available_qty,
@@ -123,11 +124,12 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
     try {
       //Transforma a minusculas el nombre del producto para que uno haya problemas al momento de buscar un producto
       const lowerCaseName = formData.name.toLowerCase();
+      const lowerCaseCategory = formData.category.toLowerCase();
       await setDoc(doc(db, "catalogo", formData.key), {
         key: formData.key,
         name: lowerCaseName,
         image: formData.image,
-        category: formData.category,
+        category: lowerCaseCategory,
         description: formData.description,
         price: formData.price,
         qty: formData.qty,
@@ -465,7 +467,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                     }
                   >
                     {/* Category */}
-                    <div className=" text-sm text-zinc-400">
+                    <div className=" text-sm text-zinc-400  capitalize">
                       {item.category}
                     </div>
                     {/* Name */}
@@ -492,7 +494,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                       <label>
                         Nombre del Producto
                         <input
-                          className=" border border-black w-full capitalize"
+                          className=" border border-black w-full"
                           type="text"
                           name="name"
                           value={formDataUpdate.name}
