@@ -18,7 +18,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
   const [updateModal, setUpdateModal] = useState(false);
   //Guarda la key del producto cuando le das click a borrar o editar
   const [tempKey, setTempKey] = useState("");
-  //Estado del mensaje que necesita ordenar el index de los productos
+  //Estado del mensaje que si necesita guardar los cambios
   const [verifyMessage, setVerifyMessage] = useState([]);
   //Array contiene la info de catalogo para controlar los filtros
   const [filteredProducts, setFilteredProducts] = useState(catalogo);
@@ -170,13 +170,17 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
   //Actualiza el array cada vez que se actualiza el catalogo //////////////////////////////////////////////////////////////////////////////////////////////
   useEffect(() => {
     setFilteredProducts(catalogo);
-    firebase_read2();
+
+    //Ordena el catalogo por orden de creacion
     const data = catalogo.sort((a, b) => {
       if (a.index < b.index) {
         return -1;
       }
     });
     console.log("SORTED", data);
+
+    //Verifica si hay cambios sin guardar cada vez que cambia el catalogo
+    firebase_verify_message();
   }, [catalogo]);
 
   //Funcion que filtra el array en base a lo que escribe en el input //////////////////////////////////////////////////////////////////////////////////////////////
@@ -206,13 +210,14 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
     }
   };
 
-  const firebase_read2 = async () => {
+  //Verifica el estado del mensaje si hay cambios sin guardar a la base de datos //////////////////////////////////////////////////////////////////////////////////////////////
+  const firebase_verify_message = async () => {
     await getDocs(collection(db, "verifyMessage")).then((querySnapshot) => {
       const newData = querySnapshot.docs.map((doc) => ({
         ...doc.data(),
         id: doc.id,
       }));
-      //Asigna los datos leidos de la base de datos al catalogo
+      //Asigna el estado del mensaje de cambios sin guardar
       setVerifyMessage(newData);
     });
     {
@@ -222,20 +227,20 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
     }
   };
 
-  const verifyTrue = async () => {
-    await updateDoc(doc(db, "verifyMessage", "OOzVQ50JrdJvEAv8H63Z"), {
-      cambios_sin_guardar: true,
-    });
-    //Lee la base de datos y actualiza los datos
-    firebase_read2();
-  };
+  //Actualiza el estado del mensaje si hay cambios por guardar //////////////////////////////////////////////////////////////////////////////////////////////
+  const verifyMessageState = async (state) => {
+    if (state) {
+      await updateDoc(doc(db, "verifyMessage", "OOzVQ50JrdJvEAv8H63Z"), {
+        cambios_sin_guardar: true,
+      });
+    } else {
+      await updateDoc(doc(db, "verifyMessage", "OOzVQ50JrdJvEAv8H63Z"), {
+        cambios_sin_guardar: false,
+      });
+    }
 
-  const verifyFalse = async () => {
-    await updateDoc(doc(db, "verifyMessage", "OOzVQ50JrdJvEAv8H63Z"), {
-      cambios_sin_guardar: false,
-    });
     //Lee la base de datos y actualiza los datos
-    firebase_read2();
+    firebase_verify_message();
   };
 
   return (
@@ -351,8 +356,10 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
               <div
                 className=" px-10 py-2 bg-amber-500 w-fit text-white  cursor-pointer"
                 onClick={() => {
+                  //Ordena el index de los productos
                   indexVerify();
-                  verifyFalse();
+                  //Actualiza el estado del mensaje de cambios sin guardar
+                  verifyMessageState(false);
                 }}
               >
                 Guardar
@@ -575,7 +582,8 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                   onClick={() => {
                     firebase_delete("catalogo", tempKey);
                     setDeleteModal(false);
-                    verifyTrue();
+                    //Actualiza el estado del mensaje de cambios sin guardar
+                    verifyMessageState(true);
                   }}
                   className="w-full py-2 px-6 bg-amber-500 text-white"
                 >

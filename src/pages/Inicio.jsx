@@ -45,7 +45,7 @@ const Inicio = ({ catalogo, setCatalogo }) => {
               }}
             >
               <div
-                style={{ backgroundImage: `url(${item.cover})` }}
+                style={{ backgroundImage: `url(${item.image})` }}
                 className="aspect-[12/18] bg-cover bg-no-repeat mb-2 w-32"
               ></div>
             </Link>
