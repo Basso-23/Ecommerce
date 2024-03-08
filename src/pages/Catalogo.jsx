@@ -102,10 +102,11 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
 
     //Transforma a minusculas el nombre del producto para que uno haya problemas al momento de buscar un producto
     const lowerCaseName = formDataUpdate.name.toLowerCase();
+    const lowerCaseCategory = formDataUpdate.category.toLowerCase();
     await updateDoc(doc(db, "catalogo", tempKey), {
       name: lowerCaseName,
       image: formDataUpdate.image,
-      category: formDataUpdate.category,
+      category: lowerCaseCategory,
       description: formDataUpdate.description,
       price: formDataUpdate.price,
       available_qty: formDataUpdate.available_qty,
@@ -119,11 +120,12 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
     try {
       //Transforma a minusculas el nombre del producto para que uno haya problemas al momento de buscar un producto
       const lowerCaseName = formData.name.toLowerCase();
+      const lowerCaseCategory = formDataUpdate.category.toLowerCase();
       await setDoc(doc(db, "catalogo", formData.key), {
         key: formData.key,
         name: lowerCaseName,
         image: formData.image,
-        category: formData.category,
+        category: lowerCaseCategory,
         description: formData.description,
         price: formData.price,
         qty: formData.qty,
@@ -388,35 +390,34 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                         style={{ backgroundImage: `url(${item.image})` }}
                         className=" bg-contain bg-no-repeat mb-2 w-full h-full bg-center"
                       ></div>
-                      <div className=" top-o left-0 absolute bg-lime-500 px-2 text-white">
-                        {item.available_qty}
+                      <div
+                        className={
+                          userState === process.env.ADMINID ? "flex" : "hidden"
+                        }
+                      >
+                        {/* Stock */}
+                        <div className=" top-0 left-0 absolute bg-lime-500 px-2 py-1 text-white">
+                          Stock: {item.available_qty}
+                        </div>
+                        {/* Index */}
+                        <div className=" top-0 right-0 absolute bg-rose-500 px-2 py-1 text-white">
+                          Index: {item.index}
+                        </div>
                       </div>
                     </div>
                   </Link>
                   {/* Info container */}
                   <div className="flex flex-col gap-2 mt-4">
                     {/* Category */}
-                    <div className=" text-sm text-zinc-400">
+                    <div className=" text-sm text-zinc-400 capitalize">
                       {item.category}
                     </div>
                     {/* Name */}
                     <div className=" text-xl font-medium capitalize">
                       {item.name}
                     </div>
-                    <div className=" flex justify-between">
-                      {/* Price */}
-                      <div className="">${item.price.toFixed(2)}</div>
-                      {/* Stock */}
-                      <div
-                        className={
-                          userState === process.env.ADMINID
-                            ? "font-medium text-gray-500"
-                            : "hidden"
-                        }
-                      >
-                        Index: {item.index}
-                      </div>
-                    </div>
+                    {/* Price */}
+                    <div className="">${item.price.toFixed(2)}</div>
                   </div>
                   {/* EDITAR producto form -------------------------------------------------------------------*/}
                   <div

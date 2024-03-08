@@ -74,7 +74,7 @@ const Navbar = ({
   }
 
   return (
-    <main className="pageSize fixed  ">
+    <main className="pageSize fixed z-50  ">
       {/* Carrito ---------------------------------------------------------------------------------------------- */}
       {cartIsOpen ? (
         <>
