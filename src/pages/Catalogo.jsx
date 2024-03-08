@@ -22,6 +22,8 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
   const [verifyMessage, setVerifyMessage] = useState([]);
   //Estado del si edito un producto para despues darle a guardar
   const [updateChange, setUpdateChange] = useState(false);
+  //Categorias
+  const [categorias, setCategorias] = useState([]);
   //Array contiene la info de catalogo para controlar los filtros
   const [filteredProducts, setFilteredProducts] = useState(catalogo);
   //Guarda la data de CREAR un producto
@@ -187,6 +189,14 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
 
     //Verifica si hay cambios sin guardar cada vez que cambia el catalogo
     firebase_verify_message();
+
+    const categories = new Set();
+    catalogo.forEach((product) => {
+      categories.add(product.category);
+    });
+
+    const uniqueCategories = Array.from(categories);
+    setCategorias(uniqueCategories);
   }, [catalogo]);
 
   //Funcion que filtra el array en base a lo que escribe en el input //////////////////////////////////////////////////////////////////////////////////////////////
@@ -263,7 +273,15 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
               onChange={handleFilter}
             />
           </div>
-          <div className="w-full h-64 border"></div>
+          {/* Categories container*/}
+          <div>
+            Categorias
+            <div className="w-full p-2 border">
+              {categorias.map((item, index) => (
+                <div key={index}>{item}</div>
+              ))}
+            </div>
+          </div>
           {/* CREAR producto form -------------------------------------------------------------------*/}
           <div
             className={userState === process.env.ADMINID ? "flex" : "hidden"}
