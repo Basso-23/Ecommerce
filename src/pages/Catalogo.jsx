@@ -417,9 +417,19 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                         : "hidden"
                     }
                   >
+                    {/* Borrar Producto */}
+                    <button
+                      className="bg-rose-500 px-2 py-1 text-white"
+                      onClick={() => {
+                        setDeleteModal(true);
+                        setTempKey(item.key);
+                      }}
+                    >
+                      🗑️
+                    </button>
                     {/* Editar Producto */}
                     <button
-                      className=" bg-lime-500 px-2 py-1 text-white"
+                      className=" "
                       onClick={() => {
                         //Si el producto es el seleccionado cuando le de denuevo al icono de editar se cerrara, si la da al icono de otro porducto se le abrira el modal de ese producto
                         if (tempKey === item.key) {
@@ -438,17 +448,14 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                         formDataUpdate.available_qty = item.available_qty;
                       }}
                     >
-                      ⚙️
-                    </button>
-                    {/* Borrar Producto */}
-                    <button
-                      className="bg-rose-500 px-2 py-1 text-white"
-                      onClick={() => {
-                        setDeleteModal(true);
-                        setTempKey(item.key);
-                      }}
-                    >
-                      🗑️
+                      {/* Controla si se muestra el icono de editar o el de cerrar de acuerdo al producto seleccionado */}
+                      {updateModal && tempKey === item.key ? (
+                        <div className="bg-white px-2 py-1 text-white">❌</div>
+                      ) : (
+                        <div className="bg-lime-500 px-2 py-1 text-white">
+                          ⚙️
+                        </div>
+                      )}
                     </button>
                   </div>
                   {/* Info container */}
