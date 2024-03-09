@@ -12,22 +12,14 @@ import {
 import { db } from "@/firebase/firebase";
 
 const Catalogo = ({ catalogo, setCatalogo, userState }) => {
-  //Estado para abrir y cerrar el si estas seguro borrar el producto
-  const [deleteModal, setDeleteModal] = useState(false);
-  //Estado para abrir y cerrar el form para editar el producto
-  const [updateModal, setUpdateModal] = useState(false);
-  //Guarda la key del producto cuando le das click a borrar o editar
-  const [tempKey, setTempKey] = useState("");
-  //Estado del mensaje que si necesita guardar los cambios
-  const [verifyMessage, setVerifyMessage] = useState([]);
-  //Estado del si edito un producto para despues darle a guardar
-  const [updateChange, setUpdateChange] = useState(false);
-  //Array donde se almacenan las categorias existentes
-  const [categorias, setCategorias] = useState([]);
-  //Filtro de ordenar por
-  const [filter, setFilter] = useState("default");
-  //Array contiene la info de catalogo para controlar los filtros
-  const [filteredProducts, setFilteredProducts] = useState(catalogo);
+  const [deleteModal, setDeleteModal] = useState(false); //Estado para abrir y cerrar el si estas seguro borrar el producto
+  const [updateModal, setUpdateModal] = useState(false); //Estado para abrir y cerrar el form para editar el producto
+  const [tempKey, setTempKey] = useState(""); //Guarda la key del producto cuando le das click a borrar o editar
+  const [verifyMessage, setVerifyMessage] = useState([]); //Estado del mensaje que si necesita guardar los cambios
+  const [updateChange, setUpdateChange] = useState(false); //Estado del si edito un producto para despues darle a guardar
+  const [categorias, setCategorias] = useState([]); //Array donde se almacenan las categorias existentes
+  const [filter, setFilter] = useState("default"); //Filtro de ordenar por
+  const [filteredProducts, setFilteredProducts] = useState(catalogo); //Array contiene la info de catalogo para controlar los filtros
   //Guarda la data del form de CREAR un producto
   const [formData, setFormData] = useState({
     key: "",
@@ -132,6 +124,8 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
 
   //Actualiza el articulo requiere: (nombre de la coleccion y la key del producto a actualizar) //////////////////////////////////////////////////////////////////////////////////////////////
   const firebase_update = async (event) => {
+    //Reinicia la temp key
+    setTempKey("");
     //Cierra el form de editar
     setUpdateModal(false);
     event.preventDefault();
@@ -311,7 +305,13 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
             Ordenar por
             <div className="w-full font-medium capitalize mt-2 select-none">
               {/* Map de las categorias*/}
-              <div className="flex flex-col gap-2 ">
+              <div
+                className={
+                  !updateModal
+                    ? "flex flex-col gap-2 "
+                    : "text-gray-300 flex flex-col gap-2 pointer-events-none"
+                }
+              >
                 <div
                   className=" cursor-pointer hover:text-amber-500 w-fit "
                   onClick={() => {
@@ -555,7 +555,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                           setUpdateModal(true);
                         }
                         setUpdateChange(false);
-                        setTempKey(item.key);
+
                         // Asigna los valores del producto para que se vean en el form de EDITAR
                         formDataUpdate.name = item.name;
                         formDataUpdate.image = item.image;
@@ -567,9 +567,21 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                     >
                       {/* Controla si se muestra el icono de editar o el de cerrar de acuerdo al producto seleccionado */}
                       {updateModal && tempKey === item.key ? (
-                        <div className="bg-white px-2 py-1 text-white">❌</div>
+                        <div
+                          onClick={() => {
+                            setTempKey("");
+                          }}
+                          className="bg-white px-2 py-1 text-white"
+                        >
+                          ❌
+                        </div>
                       ) : (
-                        <div className="bg-lime-500 px-2 py-1 text-white">
+                        <div
+                          onClick={() => {
+                            setTempKey(item.key);
+                          }}
+                          className="bg-lime-500 px-2 py-1 text-white"
+                        >
                           ⚙️
                         </div>
                       )}
@@ -578,7 +590,9 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                   {/* Info container */}
                   <div
                     className={
-                      !updateModal ? "flex flex-col gap-2 mt-4" : "hidden"
+                      tempKey != item.key
+                        ? "flex flex-col gap-2 mt-4"
+                        : "hidden"
                     }
                   >
                     {/* Category */}
@@ -603,31 +617,80 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                     }
                   >
                     <form
-                      className="flex flex-col gap-4 mt-4 "
+                      className="flex flex-col gap-2 mt-4 text-center "
                       onSubmit={firebase_update}
                     >
-                      <label>
-                        Nombre del Producto
-                        <input
-                          className=" border border-black w-full"
+                      <input
+                        className={
+                          updateChange
+                            ? "w-full py-2 bg-amber-500 text-white cursor-pointer"
+                            : "w-full py-2 bg-gray-200 text-white pointer-events-none"
+                        }
+                        type="submit"
+                        value="GUARDAR"
+                      />
+
+                      <label className="hidden">
+                        Descripcion
+                        <textarea
+                          className=" border border-black w-full h-40 "
+                          rows={4}
+                          cols={40}
                           type="text"
-                          name="name"
-                          value={formDataUpdate.name}
+                          name="description"
+                          value={formDataUpdate.description}
                           onChange={handleChangeUpdate}
                           required
                         />
                       </label>
-                      <label>
-                        Categoria
-                        <input
-                          className=" border border-black w-full"
-                          type="text"
-                          name="category"
-                          value={formDataUpdate.category}
-                          onChange={handleChangeUpdate}
-                          required
-                        />
-                      </label>
+                      <div className=" grid grid-cols-2 ">
+                        <label>
+                          Producto
+                          <input
+                            className=" border border-black w-full text-center capitalize"
+                            type="text"
+                            name="name"
+                            value={formDataUpdate.name}
+                            onChange={handleChangeUpdate}
+                            required
+                          />
+                        </label>
+                        <label>
+                          Categoria
+                          <input
+                            className=" border border-black w-full text-center capitalize"
+                            type="text"
+                            name="category"
+                            value={formDataUpdate.category}
+                            onChange={handleChangeUpdate}
+                            required
+                          />
+                        </label>
+                      </div>
+                      <div className=" grid grid-cols-2">
+                        <label>
+                          Precio 💸
+                          <input
+                            className=" border border-black w-full text-center"
+                            type="number"
+                            name="price"
+                            value={formDataUpdate.price}
+                            onChange={handleChangeUpdate}
+                            required
+                          />
+                        </label>
+                        <label>
+                          Stock
+                          <input
+                            className=" border border-black w-full text-center"
+                            type="number"
+                            name="available_qty"
+                            value={formDataUpdate.available_qty}
+                            onChange={handleChangeUpdate}
+                            required
+                          />
+                        </label>
+                      </div>
                       <label>
                         URL de Imagen
                         <input
@@ -639,50 +702,6 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                           required
                         />
                       </label>
-                      <label>
-                        Descripcion
-                        <textarea
-                          className=" border border-black w-full h-40"
-                          rows={4}
-                          cols={40}
-                          type="text"
-                          name="description"
-                          value={formDataUpdate.description}
-                          onChange={handleChangeUpdate}
-                          required
-                        />
-                      </label>
-                      <label>
-                        Precio 💸
-                        <input
-                          className=" border border-black w-full"
-                          type="number"
-                          name="price"
-                          value={formDataUpdate.price}
-                          onChange={handleChangeUpdate}
-                          required
-                        />
-                      </label>
-                      <label>
-                        Cantidad en Stock
-                        <input
-                          className=" border border-black w-full"
-                          type="number"
-                          name="available_qty"
-                          value={formDataUpdate.available_qty}
-                          onChange={handleChangeUpdate}
-                          required
-                        />
-                      </label>
-                      <input
-                        className={
-                          updateChange
-                            ? "w-full py-2 bg-amber-500 text-white cursor-pointer"
-                            : "w-full py-2 bg-gray-200 text-white pointer-events-none"
-                        }
-                        type="submit"
-                        value="GUARDAR"
-                      />
                     </form>
                   </div>
                 </div>
@@ -703,6 +722,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                 <button
                   onClick={() => {
                     setDeleteModal(false);
+                    setTempKey("");
                   }}
                   className="w-full py-2 px-6 bg-red-500 text-white"
                 >
