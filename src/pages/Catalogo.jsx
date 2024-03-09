@@ -24,6 +24,8 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
   const [updateChange, setUpdateChange] = useState(false);
   //Categorias
   const [categorias, setCategorias] = useState([]);
+  //Categorias
+  const [filter, setFilter] = useState("default");
   //Array contiene la info de catalogo para controlar los filtros
   const [filteredProducts, setFilteredProducts] = useState(catalogo);
   //Guarda la data del form de CREAR un producto
@@ -176,14 +178,11 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
   useEffect(() => {
     setFilteredProducts(catalogo);
 
-    //Ordena el catalogo por orden de creacion
-    const data = catalogo.sort((a, b) => {
+    catalogo.sort((a, b) => {
       if (a.index < b.index) {
         return -1;
       }
     });
-    console.log("SORTED", data);
-
     //Verifica si hay cambios sin guardar cada vez que se borra algo del catalogo
     firebase_verify_message();
 
@@ -263,9 +262,31 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
     const filtered = catalogo.filter((item) =>
       item.category.includes(category)
     );
+
     //Asigna los valores filtrados
     setFilteredProducts(filtered);
+
+    setFilter("default");
   };
+
+  useEffect(() => {
+    if (filter == "default") {
+      //Ordena el catalogo por orden de creacion
+      filteredProducts.sort((a, b) => {
+        if (a.index < b.index) {
+          return -1;
+        }
+      });
+    }
+    if (filter == "menor") {
+      // Ordenar el catalogo según el valor de price
+      filteredProducts.sort((a, b) => a.price - b.price);
+    }
+    if (filter == "mayor") {
+      // Ordenar el catalogo según el valor de price
+      filteredProducts.sort((a, b) => b.price - a.price);
+    }
+  }, [filter]);
 
   return (
     <main>
@@ -281,6 +302,41 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
               onChange={handleFilter}
             />
           </div>
+          {/* Filtros de ordenar*/}
+          <div className=" select-none w-fit cursor-pointer">
+            <details>
+              <summary>Ordenar por</summary>
+              <p
+                onClick={() => {
+                  filteredProducts.sort((a, b) => {
+                    if (a.index < b.index) {
+                      return -1;
+                    }
+                  });
+                  setFilter("default");
+                }}
+              >
+                1. Añadidos recientemente
+              </p>
+              <p
+                onClick={() => {
+                  filteredProducts.sort((a, b) => a.price - b.price);
+                  setFilter("mayor");
+                }}
+              >
+                2. Mayor
+              </p>
+              <p
+                onClick={() => {
+                  filteredProducts.sort((a, b) => b.price - a.price);
+                  setFilter("menor");
+                }}
+              >
+                3. Menor
+              </p>
+            </details>
+          </div>
+
           {/* Categories container*/}
           <div>
             Categorias
