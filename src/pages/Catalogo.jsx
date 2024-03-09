@@ -315,6 +315,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                 <div
                   className=" cursor-pointer hover:text-amber-500 w-fit "
                   onClick={() => {
+                    //Debo ponerlo aqui y en el useEffect para que funcione
                     filteredProducts.sort((a, b) => {
                       if (a.index < b.index) {
                         return -1;
@@ -328,6 +329,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                 <div
                   className=" cursor-pointer hover:text-amber-500 w-fit "
                   onClick={() => {
+                    //Debo ponerlo aqui y en el useEffect para que funcione
                     filteredProducts.sort((a, b) => b.price - a.price);
                     setFilter("menor");
                   }}
@@ -337,6 +339,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                 <div
                   className=" cursor-pointer hover:text-amber-500 w-fit "
                   onClick={() => {
+                    //Debo ponerlo aqui y en el useEffect para que funcione
                     filteredProducts.sort((a, b) => a.price - b.price);
                     setFilter("mayor");
                   }}
