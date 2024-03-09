@@ -22,9 +22,9 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
   const [verifyMessage, setVerifyMessage] = useState([]);
   //Estado del si edito un producto para despues darle a guardar
   const [updateChange, setUpdateChange] = useState(false);
-  //Categorias
+  //Array donde se almacenan las categorias existentes
   const [categorias, setCategorias] = useState([]);
-  //Categorias
+  //Filtro de ordenar por
   const [filter, setFilter] = useState("default");
   //Array contiene la info de catalogo para controlar los filtros
   const [filteredProducts, setFilteredProducts] = useState(catalogo);
@@ -178,11 +178,13 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
   useEffect(() => {
     setFilteredProducts(catalogo);
 
+    //Ordena el catalogo por orden de creacion
     catalogo.sort((a, b) => {
       if (a.index < b.index) {
         return -1;
       }
     });
+
     //Verifica si hay cambios sin guardar cada vez que se borra algo del catalogo
     firebase_verify_message();
 
@@ -269,6 +271,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
     setFilter("default");
   };
 
+  //Cada vez que se actualiza el filtro verifica cual es el actual para ordenar el catalogo de esa forma //////////////////////////////////////////////////////////////////////////////////////////////
   useEffect(() => {
     if (filter == "default") {
       //Ordena el catalogo por orden de creacion
@@ -302,39 +305,46 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
               onChange={handleFilter}
             />
           </div>
-          {/* Filtros de ordenar*/}
-          <div className=" select-none w-fit cursor-pointer">
-            <details>
-              <summary>Ordenar por</summary>
-              <p
-                onClick={() => {
-                  filteredProducts.sort((a, b) => {
-                    if (a.index < b.index) {
-                      return -1;
-                    }
-                  });
-                  setFilter("default");
-                }}
-              >
-                1. Añadidos recientemente
-              </p>
-              <p
-                onClick={() => {
-                  filteredProducts.sort((a, b) => a.price - b.price);
-                  setFilter("mayor");
-                }}
-              >
-                2. Mayor
-              </p>
-              <p
-                onClick={() => {
-                  filteredProducts.sort((a, b) => b.price - a.price);
-                  setFilter("menor");
-                }}
-              >
-                3. Menor
-              </p>
-            </details>
+
+          {/* Ordenar por container*/}
+          <div>
+            Ordenar por
+            <div className="w-full font-medium capitalize mt-2 select-none">
+              {/* Map de las categorias*/}
+              <div className="flex flex-col gap-2 ">
+                <div
+                  className=" cursor-pointer hover:text-amber-500 w-fit "
+                  onClick={() => {
+                    filteredProducts.sort((a, b) => {
+                      if (a.index < b.index) {
+                        return -1;
+                      }
+                    });
+                    setFilter("default");
+                  }}
+                >
+                  Nuevos
+                </div>
+                <div
+                  className=" cursor-pointer hover:text-amber-500 w-fit "
+                  onClick={() => {
+                    filteredProducts.sort((a, b) => b.price - a.price);
+                    setFilter("menor");
+                  }}
+                >
+                  Menor Precio
+                </div>
+                <div
+                  className=" cursor-pointer hover:text-amber-500 w-fit "
+                  onClick={() => {
+                    filteredProducts.sort((a, b) => a.price - b.price);
+                    setFilter("mayor");
+                  }}
+                >
+                  Mayor Precio
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Categories container*/}
