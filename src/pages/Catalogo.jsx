@@ -26,7 +26,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
   const [categorias, setCategorias] = useState([]);
   //Array contiene la info de catalogo para controlar los filtros
   const [filteredProducts, setFilteredProducts] = useState(catalogo);
-  //Guarda la data de CREAR un producto
+  //Guarda la data del form de CREAR un producto
   const [formData, setFormData] = useState({
     key: "",
     name: "",
@@ -34,11 +34,9 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
     category: "",
     description: "",
     price: "",
-    qty: 1,
     available_qty: "",
-    index: 0,
   });
-  //Guarda la data de EDITAR un producto
+  //Guarda la data del form de EDITAR un producto
   const [formDataUpdate, setFormDataUpdate] = useState({
     name: "",
     image: "",
@@ -68,7 +66,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
     console.log("TEMP KEY:", tempKey);
   }, [tempKey]);
 
-  //Se encarga de mostrar los cambios en el input para CREAR un producto //////////////////////////////////////////////////////////////////////////////////////////////
+  //Se encarga de asignar los cambios del input para CREAR un producto //////////////////////////////////////////////////////////////////////////////////////////////
   const handleChange = (event) => {
     const { name, value } = event.target;
     setFormData((prevState) => ({ ...prevState, [name]: value }));
@@ -79,8 +77,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
     event.preventDefault();
     //Asigna una key aleatoria
     formData.key = keyMaker(10);
-    formData.qty = 1;
-    formData.index = 0;
+
     //Tranforma de string a number el precio y las cantidades disponibles
     formData.price = Number(formData.price);
     formData.available_qty = Number(formData.available_qty);
@@ -89,7 +86,42 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
     firebase_write();
   };
 
-  //Se encarga de mostrar los cambios en el input para EDITAR un producto //////////////////////////////////////////////////////////////////////////////////////////////
+  //Escribe la informacion en la base de datos //////////////////////////////////////////////////////////////////////////////////////////////
+  const firebase_write = async () => {
+    try {
+      //Transforma a minusculas el nombre y la categoria del producto para que uno haya problemas al momento de buscar un producto
+      const lowerCaseName = formData.name.toLowerCase();
+      const lowerCaseCategory = formData.category.toLowerCase();
+      await setDoc(doc(db, "catalogo", formData.key), {
+        key: formData.key,
+        name: lowerCaseName,
+        image: formData.image,
+        category: lowerCaseCategory,
+        description: formData.description,
+        price: formData.price,
+        qty: 1,
+        available_qty: formData.available_qty,
+        index: catalogo.length,
+      });
+      //Lee la base de datos y actualiza los datos
+      firebase_read();
+
+      console.log("Nuevo producto creado con la key:", formData.key);
+      //Borra los valores almacenados en el array para asi poder crear un nuevo producto
+      formData.key = "";
+      formData.name = "";
+      formData.image = "";
+      formData.category = "";
+      formData.description = "";
+      formData.price = "";
+
+      formData.available_qty = "";
+    } catch (e) {
+      console.error("Error adding document: ", e);
+    }
+  };
+
+  //Se encarga de asignar los cambios en el input para EDITAR un producto //////////////////////////////////////////////////////////////////////////////////////////////
   const handleChangeUpdate = (event) => {
     const { name, value } = event.target;
     setFormDataUpdate((prevState) => ({ ...prevState, [name]: value }));
@@ -119,41 +151,6 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
     //Lee la base de datos y actualiza los datos
     firebase_read();
     setUpdateChange(false);
-  };
-
-  //Escribe la informacion en la base de datos //////////////////////////////////////////////////////////////////////////////////////////////
-  const firebase_write = async () => {
-    try {
-      //Transforma a minusculas el nombre del producto para que uno haya problemas al momento de buscar un producto
-      const lowerCaseName = formData.name.toLowerCase();
-      const lowerCaseCategory = formData.category.toLowerCase();
-      await setDoc(doc(db, "catalogo", formData.key), {
-        key: formData.key,
-        name: lowerCaseName,
-        image: formData.image,
-        category: lowerCaseCategory,
-        description: formData.description,
-        price: formData.price,
-        qty: formData.qty,
-        available_qty: formData.available_qty,
-        index: catalogo.length,
-      });
-      //Lee la base de datos y actualiza los datos
-      firebase_read();
-
-      console.log("Document written with ID: ", formData.key);
-      //Borra los valores almacenados en el array para asi poder crear un nuevo producto
-      formData.key = "";
-      formData.name = "";
-      formData.image = "";
-      formData.category = "";
-      formData.description = "";
-      formData.price = "";
-      formData.qty = "";
-      formData.available_qty = "";
-    } catch (e) {
-      console.error("Error adding document: ", e);
-    }
   };
 
   //Lee la base de datos y Actualiza la informacion de la base de datos //////////////////////////////////////////////////////////////////////////////////////////////
@@ -187,20 +184,21 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
     });
     console.log("SORTED", data);
 
-    //Verifica si hay cambios sin guardar cada vez que cambia el catalogo
+    //Verifica si hay cambios sin guardar cada vez que se borra algo del catalogo
     firebase_verify_message();
 
+    //Se encarga de el manejor de categorias, si detecta una categoria que no existe cuando el catalogo se actualiza la agrega automaticamente
     const categories = new Set();
     catalogo.forEach((product) => {
       categories.add(product.category);
     });
 
-    //Se encarga de el manejor de categorias, si detecta una categoria que no existe cuando el catalogo se actualiza la agrega automaticamente
+    //Ingresa todas las categorias existentes del catalogo a un array
     const uniqueCategories = Array.from(categories);
     setCategorias(uniqueCategories);
   }, [catalogo]);
 
-  //Funcion que filtra el array en base a lo que escribe en el input //////////////////////////////////////////////////////////////////////////////////////////////
+  //Funcion que filtra el array en base a lo que escribe en el input de search //////////////////////////////////////////////////////////////////////////////////////////////
   const handleFilter = (event) => {
     const value = event.target.value;
     const filtered = catalogo.filter(
@@ -286,7 +284,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
           {/* Categories container*/}
           <div>
             Categorias
-            <div className="w-full font-medium capitalize mt-2">
+            <div className="w-full font-medium capitalize mt-2 max-h-[250px] overflow-y-auto">
               {/* Todos los productos */}
               <div
                 className=" cursor-pointer hover:text-amber-500 w-fit mb-2 "
@@ -297,7 +295,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                 All
               </div>
               {/* Map de las categorias*/}
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-2 ">
                 {categorias.map((item, index) => (
                   <div
                     className=" cursor-pointer hover:text-amber-500 w-fit "
