@@ -22,6 +22,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
   const [filteredProducts, setFilteredProducts] = useState(catalogo); //Array contiene la info de catalogo para controlar los filtros
   const [filteredSize, setFilteredSize] = useState(0); //Almacena el tamaño del catalogo
   const [indicesToShow, setIndicesToShow] = useState([]); //Almacena los indices de los productos que mostrara en el catalogo
+  const [currentPage, setCurrentPage] = useState(1); //Contador para saber en que pagina del catalogo se encuentra
   //Guarda la data del form de CREAR un producto
   const [formData, setFormData] = useState({
     key: "",
@@ -149,6 +150,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
     //Lee la base de datos y actualiza los datos
     firebase_read();
     setUpdateChange(false);
+    setFilter("default");
   };
 
   //Lee la base de datos y Actualiza la informacion de la base de datos //////////////////////////////////////////////////////////////////////////////////////////////
@@ -265,6 +267,8 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
     setFilteredProducts(filtered);
 
     setFilter("default");
+
+    setCurrentPage(1);
   };
 
   //Cada vez que se actualiza el filtro verifica cual es el actual para ordenar el catalogo de esa forma //////////////////////////////////////////////////////////////////////////////////////////////
@@ -280,11 +284,11 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
 
       console.log("sortedd", sortedProducts);
 
-      //Asigna los indices a mostrar en base al largo del catalogo en ese momento
+      //Asigna los indices a mostrar en base al largo del catalogo en ese momento, esto hace que lo regrese a la primera pagina
       setIndicesToShow(generarArray(filteredSize - 1, productsToShow));
     }
     if (filter == "menor") {
-      // Ordenar el catalogo según el valor de price
+      // Ordenar el catalogo según el valor de price de menor a mayor
       const sortedProducts = [...filteredProducts].sort(
         (a, b) => b.price - a.price
       );
@@ -293,11 +297,11 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
 
       console.log("sortedd", sortedProducts);
 
-      //Asigna los indices a mostrar en base al largo del catalogo en ese momento
+      //Asigna los indices a mostrar en base al largo del catalogo en ese momento, esto hace que lo regrese a la primera pagina
       setIndicesToShow(generarArray(filteredSize - 1, productsToShow));
     }
     if (filter == "mayor") {
-      // Ordenar el catalogo según el valor de price
+      // Ordenar el catalogo según el valor de price de mayor a menor
       const sortedProducts = [...filteredProducts].sort(
         (a, b) => a.price - b.price
       );
@@ -306,14 +310,16 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
 
       console.log("sortedd", sortedProducts);
 
-      //Asigna los indices a mostrar en base al largo del catalogo en ese momento
+      //Asigna los indices a mostrar en base al largo del catalogo en ese momento, esto hace que lo regrese a la primera pagina
       setIndicesToShow(generarArray(filteredSize - 1, productsToShow));
     }
+
+    setCurrentPage(1);
   }, [filter]);
 
-  const productsToShow = 4; //si se desea cambiar la cantidad de productos a mostrar debe cambiar esto#######################
+  const productsToShow = 5; //si se desea cambiar la cantidad de productos a mostrar debe cambiar esto#######################
 
-  // Creamos un array con el número dado y los siguientes tres números en cuenta regresiva //////////////////////////////////////////////////////////////////////////////////////////////
+  // Creamos un array con el número dado y los siguientes tres números en cuenta regresiva, esta parte se encarga de la paginacion //////////////////////////////////////////////////////////////////////////////////////////////
   const generarArray = (numero, cantidad) => {
     const array = [numero];
     for (let i = 1; i < cantidad; i++) {
@@ -328,6 +334,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
     setIndicesToShow(generarArray(filteredSize - 1, productsToShow));
   }, [filteredSize]);
 
+  //Cada vez que se actualiza el tamaño del catalogo muestra el tamaño actual y se lo asigna a la variable "filteredSize" //////////////////////////////////////////////////////////////////////////////////////////////
   useEffect(() => {
     console.log("TAMAÑO", filteredProducts.length);
     setFilteredSize(filteredProducts.length);
@@ -341,6 +348,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
       console.log("ESTAS EN LA PRIMERA PAGINA");
     } else {
       setIndicesToShow(nuevosIndices);
+      setCurrentPage(currentPage - 1);
     }
   };
 
@@ -351,6 +359,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
       console.log("YA NO SE PUEDE AVANZAR");
     } else {
       setIndicesToShow(nuevosIndices);
+      setCurrentPage(currentPage + 1);
     }
     console.log("next", filteredProducts);
   };
@@ -569,7 +578,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                     display: indicesToShow.includes(index) ? "block" : "none",
                   }}
                 >
-                  {index}
+                  {/* {index}*/}
                   {/* Link dynamic routing */}
                   <Link
                     href={{
@@ -782,11 +791,12 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
               ))
               .reverse()}
           </div>
-          <div className=" flex gap-10">
+          <div className=" flex gap-10 justify-center mt-10">
             <button onClick={prevPage}>Previous</button>
+            <div className=" font-bold">Pagina {currentPage}</div>
             <button onClick={nextPage}>Next</button>
 
-            <p>Índices a mostrar: {JSON.stringify(indicesToShow)}</p>
+            {/*  <p>Índices a mostrar: {JSON.stringify(indicesToShow)}</p>  */}
           </div>
         </section>
 
