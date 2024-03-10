@@ -1,6 +1,5 @@
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
-import ReactPaginate from "react-paginate";
 import {
   collection,
   getDocs,
@@ -21,6 +20,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
   const [categorias, setCategorias] = useState([]); //Array donde se almacenan las categorias existentes
   const [filter, setFilter] = useState("default"); //Filtro de ordenar por
   const [filteredProducts, setFilteredProducts] = useState(catalogo); //Array contiene la info de catalogo para controlar los filtros
+  const [filteredSize, setFilteredSize] = useState(0);
   //Guarda la data del form de CREAR un producto
   const [formData, setFormData] = useState({
     key: "",
@@ -266,6 +266,26 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
     setFilter("default");
   };
 
+  const [indicesToShow, setIndicesToShow] = useState([]);
+
+  useEffect(() => {
+    // Creamos un array con el número dado y los siguientes tres números en cuenta regresiva
+    const generarArray = (numero) => {
+      return [numero, numero - 1, numero - 2, numero - 3];
+    };
+
+    setIndicesToShow(generarArray(filteredSize - 1));
+  }, [filteredSize]);
+
+  useEffect(() => {
+    console.log("INDICES", indicesToShow);
+  }, [indicesToShow]);
+
+  useEffect(() => {
+    console.log("TAMAÑO", filteredProducts.length);
+    setFilteredSize(filteredProducts.length);
+  }, [filteredProducts]);
+
   //Cada vez que se actualiza el filtro verifica cual es el actual para ordenar el catalogo de esa forma //////////////////////////////////////////////////////////////////////////////////////////////
   useEffect(() => {
     if (filter == "default") {
@@ -286,27 +306,14 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
     }
   }, [filter]);
 
-  const itemsPerPage = 4;
+  const sumarCuatro = () => {
+    const nuevosIndices = indicesToShow.map((index) => index + 4);
+    setIndicesToShow(nuevosIndices);
+  };
 
-  // Here we use item offsets; we could also use page offsets
-  // following the API or data you're working with.
-  const [itemOffset, setItemOffset] = useState(0);
-
-  // Simulate fetching items from another resources.
-  // (This could be items from props; or items loaded in a local state
-  // from an API endpoint with useEffect and useState)
-  const endOffset = itemOffset + itemsPerPage;
-  console.log(`Loading items from ${itemOffset} to ${endOffset}`);
-  const currentItems = filteredProducts.slice(itemOffset, endOffset);
-  const pageCount = Math.ceil(filteredProducts.length / itemsPerPage);
-
-  // Invoke when user click to request another page.
-  const handlePageClick = (event) => {
-    const newOffset = (event.selected * itemsPerPage) % filteredProducts.length;
-    console.log(
-      `User requested page number ${event.selected}, which is offset ${newOffset}`
-    );
-    setItemOffset(newOffset);
+  const restarCuatro = () => {
+    const nuevosIndices = indicesToShow.map((index) => index - 4);
+    setIndicesToShow(nuevosIndices);
   };
 
   return (
@@ -517,9 +524,15 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
 
           {/* Products container */}
           <div className="grid grid-cols-3 gap-x-6 gap-y-10">
-            {currentItems
-              .map((item) => (
-                <div key={item.key}>
+            {filteredProducts
+              .map((item, index) => (
+                <div
+                  key={item.key}
+                  style={{
+                    display: indicesToShow.includes(index) ? "block" : "none",
+                  }}
+                >
+                  {index}
                   {/* Link dynamic routing */}
                   <Link
                     href={{
@@ -732,15 +745,12 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
               ))
               .reverse()}
           </div>
-          <ReactPaginate
-            breakLabel="..."
-            nextLabel="next >"
-            onPageChange={handlePageClick}
-            pageRangeDisplayed={5}
-            pageCount={pageCount}
-            previousLabel="< previous"
-            renderOnZeroPageCount={null}
-          />
+          <div className=" flex gap-10">
+            <button onClick={restarCuatro}>Previous</button>
+            <button onClick={sumarCuatro}>Next</button>
+
+            <p>Índices a mostrar: {JSON.stringify(indicesToShow)}</p>
+          </div>
         </section>
 
         {/* Delete modal container */}
