@@ -1,5 +1,6 @@
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
+import { animateScroll as scroll } from "react-scroll";
 import {
   collection,
   getDocs,
@@ -42,6 +43,10 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
     price: "",
     available_qty: "",
   });
+
+  const scrollToTop = () => {
+    scroll.scrollToTop();
+  };
 
   //Funcion que crea la key aleatoria requiere: (cantidad de caracteres que desea) //////////////////////////////////////////////////////////////////////////////////////////////
   function keyMaker(length) {
@@ -269,6 +274,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
     setFilter("default");
 
     setCurrentPage(1);
+    scrollToTop();
   };
 
   //Cada vez que se actualiza el filtro verifica cual es el actual para ordenar el catalogo de esa forma //////////////////////////////////////////////////////////////////////////////////////////////
@@ -315,9 +321,10 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
     }
 
     setCurrentPage(1);
+    scrollToTop();
   }, [filter]);
 
-  const productsToShow = 5; //si se desea cambiar la cantidad de productos a mostrar debe cambiar esto#######################
+  const productsToShow = 9; //si se desea cambiar la cantidad de productos a mostrar debe cambiar esto#######################
 
   // Creamos un array con el número dado y los siguientes tres números en cuenta regresiva, esta parte se encarga de la paginacion //////////////////////////////////////////////////////////////////////////////////////////////
   const generarArray = (numero, cantidad) => {
@@ -349,6 +356,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
     } else {
       setIndicesToShow(nuevosIndices);
       setCurrentPage(currentPage - 1);
+      scrollToTop();
     }
   };
 
@@ -360,6 +368,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
     } else {
       setIndicesToShow(nuevosIndices);
       setCurrentPage(currentPage + 1);
+      scrollToTop();
     }
     console.log("next", filteredProducts);
   };
