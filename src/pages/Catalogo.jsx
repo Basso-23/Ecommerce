@@ -1,5 +1,6 @@
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
+import ReactPaginate from "react-paginate";
 import {
   collection,
   getDocs,
@@ -285,6 +286,29 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
     }
   }, [filter]);
 
+  const itemsPerPage = 4;
+
+  // Here we use item offsets; we could also use page offsets
+  // following the API or data you're working with.
+  const [itemOffset, setItemOffset] = useState(0);
+
+  // Simulate fetching items from another resources.
+  // (This could be items from props; or items loaded in a local state
+  // from an API endpoint with useEffect and useState)
+  const endOffset = itemOffset + itemsPerPage;
+  console.log(`Loading items from ${itemOffset} to ${endOffset}`);
+  const currentItems = filteredProducts.slice(itemOffset, endOffset);
+  const pageCount = Math.ceil(filteredProducts.length / itemsPerPage);
+
+  // Invoke when user click to request another page.
+  const handlePageClick = (event) => {
+    const newOffset = (event.selected * itemsPerPage) % filteredProducts.length;
+    console.log(
+      `User requested page number ${event.selected}, which is offset ${newOffset}`
+    );
+    setItemOffset(newOffset);
+  };
+
   return (
     <main>
       <div className=" flex">
@@ -493,7 +517,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
 
           {/* Products container */}
           <div className="grid grid-cols-3 gap-x-6 gap-y-10">
-            {filteredProducts
+            {currentItems
               .map((item) => (
                 <div key={item.key}>
                   {/* Link dynamic routing */}
@@ -708,6 +732,15 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
               ))
               .reverse()}
           </div>
+          <ReactPaginate
+            breakLabel="..."
+            nextLabel="next >"
+            onPageChange={handlePageClick}
+            pageRangeDisplayed={5}
+            pageCount={pageCount}
+            previousLabel="< previous"
+            renderOnZeroPageCount={null}
+          />
         </section>
 
         {/* Delete modal container */}
