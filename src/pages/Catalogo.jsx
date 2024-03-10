@@ -266,26 +266,6 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
     setFilter("default");
   };
 
-  const [indicesToShow, setIndicesToShow] = useState([]);
-
-  useEffect(() => {
-    // Creamos un array con el número dado y los siguientes tres números en cuenta regresiva
-    const generarArray = (numero) => {
-      return [numero, numero - 1, numero - 2, numero - 3];
-    };
-
-    setIndicesToShow(generarArray(filteredSize - 1));
-  }, [filteredSize]);
-
-  useEffect(() => {
-    console.log("INDICES", indicesToShow);
-  }, [indicesToShow]);
-
-  useEffect(() => {
-    console.log("TAMAÑO", filteredProducts.length);
-    setFilteredSize(filteredProducts.length);
-  }, [filteredProducts]);
-
   //Cada vez que se actualiza el filtro verifica cual es el actual para ordenar el catalogo de esa forma //////////////////////////////////////////////////////////////////////////////////////////////
   useEffect(() => {
     if (filter == "default") {
@@ -306,14 +286,43 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
     }
   }, [filter]);
 
+  const [indicesToShow, setIndicesToShow] = useState([]);
+
+  useEffect(() => {
+    // Creamos un array con el número dado y los siguientes tres números en cuenta regresiva
+    const generarArray = (numero) => {
+      return [numero, numero - 1, numero - 2, numero - 3];
+    };
+
+    setIndicesToShow(generarArray(filteredSize - 1));
+  }, [filteredSize]);
+
+  useEffect(() => {
+    console.log("INDICES", indicesToShow);
+  }, [indicesToShow]);
+
+  useEffect(() => {
+    console.log("TAMAÑO", filteredProducts.length);
+    setFilteredSize(filteredProducts.length);
+  }, [filteredProducts]);
+
   const sumarCuatro = () => {
     const nuevosIndices = indicesToShow.map((index) => index + 4);
-    setIndicesToShow(nuevosIndices);
+
+    if (indicesToShow.includes(filteredSize - 1)) {
+      console.log("ESTAS EN LA PRIMERA PAGINA");
+    } else {
+      setIndicesToShow(nuevosIndices);
+    }
   };
 
   const restarCuatro = () => {
     const nuevosIndices = indicesToShow.map((index) => index - 4);
-    setIndicesToShow(nuevosIndices);
+    if (indicesToShow.includes(0)) {
+      console.log("YA NO SE PUEDE AVANZAR");
+    } else {
+      setIndicesToShow(nuevosIndices);
+    }
   };
 
   return (
@@ -746,8 +755,8 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
               .reverse()}
           </div>
           <div className=" flex gap-10">
-            <button onClick={restarCuatro}>Previous</button>
-            <button onClick={sumarCuatro}>Next</button>
+            <button onClick={sumarCuatro}>Previous</button>
+            <button onClick={restarCuatro}>Next</button>
 
             <p>Índices a mostrar: {JSON.stringify(indicesToShow)}</p>
           </div>
