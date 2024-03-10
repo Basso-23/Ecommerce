@@ -267,52 +267,63 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
     setFilter("default");
   };
 
-  const [sortedAscProducts, setSortedAscProducts] = useState([]);
-  const [sortedDescProducts, setSortedDescProducts] = useState([
-    ...filteredProducts,
-  ]);
-
   //Cada vez que se actualiza el filtro verifica cual es el actual para ordenar el catalogo de esa forma //////////////////////////////////////////////////////////////////////////////////////////////
   useEffect(() => {
     if (filter == "default") {
       //Ordena el catalogo por orden de creacion
-      filteredProducts.sort((a, b) => {
+      const sortedProducts = [...filteredProducts].sort((a, b) => {
         if (a.index < b.index) {
           return -1;
         }
       });
+      setFilteredProducts(sortedProducts);
+
+      console.log("sortedd", sortedProducts);
+
+      //Asigna los indices a mostrar en base al largo del catalogo en ese momento
+      setIndicesToShow(generarArray(filteredSize - 1, productsToShow));
     }
     if (filter == "menor") {
       // Ordenar el catalogo según el valor de price
-      filteredProducts.sort((a, b) => a.price - b.price);
-    }
-    if (filter == "mayor") {
-      // Ordenar el catalogo según el valor de price
-      filteredProducts.sort((a, b) => b.price - a.price);
-
       const sortedProducts = [...filteredProducts].sort(
-        (a, b) => a.price - b.price
+        (a, b) => b.price - a.price
       );
-      setSortedAscProducts(sortedProducts);
 
       setFilteredProducts(sortedProducts);
 
       console.log("sortedd", sortedProducts);
+
+      //Asigna los indices a mostrar en base al largo del catalogo en ese momento
+      setIndicesToShow(generarArray(filteredSize - 1, productsToShow));
+    }
+    if (filter == "mayor") {
+      // Ordenar el catalogo según el valor de price
+      const sortedProducts = [...filteredProducts].sort(
+        (a, b) => a.price - b.price
+      );
+
+      setFilteredProducts(sortedProducts);
+
+      console.log("sortedd", sortedProducts);
+
+      //Asigna los indices a mostrar en base al largo del catalogo en ese momento
+      setIndicesToShow(generarArray(filteredSize - 1, productsToShow));
     }
   }, [filter]);
 
   const productsToShow = 4; //si se desea cambiar la cantidad de productos a mostrar debe cambiar esto#######################
 
+  // Creamos un array con el número dado y los siguientes tres números en cuenta regresiva //////////////////////////////////////////////////////////////////////////////////////////////
+  const generarArray = (numero, cantidad) => {
+    const array = [numero];
+    for (let i = 1; i < cantidad; i++) {
+      array.push(numero - i);
+    }
+    return array;
+  };
+
   //Cada vez que se actualiza el tamaño del catalogo se calcula los indices que debe mostrar //////////////////////////////////////////////////////////////////////////////////////////////
   useEffect(() => {
-    // Creamos un array con el número dado y los siguientes tres números en cuenta regresiva
-    const generarArray = (numero, cantidad) => {
-      const array = [numero];
-      for (let i = 1; i < cantidad; i++) {
-        array.push(numero - i);
-      }
-      return array;
-    };
     //Asigna los indices a mostarr en base al largo del catalogo en ese momento
     setIndicesToShow(generarArray(filteredSize - 1, productsToShow));
   }, [filteredSize]);
@@ -398,8 +409,6 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                 <div
                   className=" cursor-pointer hover:text-amber-500 w-fit "
                   onClick={() => {
-                    //Debo ponerlo aqui y en el useEffect para que funcione
-                    filteredProducts.sort((a, b) => a.price - b.price);
                     setFilter("mayor");
                   }}
                 >
