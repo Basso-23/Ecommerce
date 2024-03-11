@@ -74,7 +74,7 @@ const Navbar = ({
   }
 
   return (
-    <main className="fixed z-50 shadow-md w-full ">
+    <main className="fixed z-[60] shadow-md w-full ">
       {/* Carrito ---------------------------------------------------------------------------------------------- */}
       {cartIsOpen ? (
         <>

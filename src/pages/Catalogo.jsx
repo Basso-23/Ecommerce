@@ -1,6 +1,8 @@
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
 import Star from "@/assets/icons/Star";
+import Arrow from "@/assets/icons/Arrow";
+import Search from "@/assets/icons/Search";
 import {
   collection,
   getDocs,
@@ -19,12 +21,13 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
   const [verifyMessage, setVerifyMessage] = useState([]); //Estado del mensaje que si necesita guardar los cambios
   const [updateChange, setUpdateChange] = useState(false); //Estado del si edito un producto para despues darle a guardar
   const [categorias, setCategorias] = useState([]); //Array donde se almacenan las categorias existentes
-  const [filter, setFilter] = useState("default"); //Filtro de ordenar por
+  const [filter, setFilter] = useState("recientes"); //Filtro de ordenar por
   const [filteredProducts, setFilteredProducts] = useState(catalogo); //Array contiene la info de catalogo para controlar los filtros
   const [filteredSize, setFilteredSize] = useState(0); //Almacena el tamaño del catalogo
   const [indicesToShow, setIndicesToShow] = useState([]); //Almacena los indices de los productos que mostrara en el catalogo
   const [currentPage, setCurrentPage] = useState(1); //Contador para saber en que pagina del catalogo se encuentra
   const [currentCategory, setCurrentCategory] = useState(""); //Almacena la categoria actual del catalogo
+  const [sortMenu, setSortMenu] = useState(false); //Se encarga de abrir y cerrar el menu de ordenar por
   //Guarda la data del form de CREAR un producto
   const [formData, setFormData] = useState({
     key: "",
@@ -156,7 +159,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
     //Lee la base de datos y actualiza los datos
     firebase_read();
     setUpdateChange(false);
-    setFilter("default");
+    setFilter("recientes");
   };
 
   //Lee la base de datos y Actualiza la informacion de la base de datos //////////////////////////////////////////////////////////////////////////////////////////////
@@ -205,13 +208,15 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
 
   //Funcion que filtra el array en base a lo que escribe en el input de search //////////////////////////////////////////////////////////////////////////////////////////////
   const handleFilter = (event) => {
-    const value = event.target.value;
-    const filtered = catalogo.filter(
-      //Transforma a minusculas el valor del input para que uno haya problemas al momento de buscar un producto
-      (item) => item.name.includes(value.toLowerCase())
-    );
-    //Asigna los valores filtrados
-    setFilteredProducts(filtered);
+    setTimeout(() => {
+      const value = event.target.value;
+      const filtered = catalogo.filter(
+        //Transforma a minusculas el valor del input para que uno haya problemas al momento de buscar un producto
+        (item) => item.name.includes(value.toLowerCase())
+      );
+      //Asigna los valores filtrados
+      setFilteredProducts(filtered);
+    }, 1500);
   };
 
   //Verifica y asigna el index correspondiente a cada producto (se debe usara cada vez que borras algun producto para re asignar los index correctos) //////////////////////////////////////////////////////////////////////////////////////////////
@@ -273,7 +278,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
     //Asigna los valores filtrados
     setFilteredProducts(filtered);
 
-    setFilter("default");
+    setFilter("recientes");
 
     //Esto hace que si le vuelvas a dar click a la misma category no te salga que volviste a la pagina 1
     if (currentCategory != category) {
@@ -285,7 +290,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
 
   //Cada vez que se actualiza el filtro verifica cual es el actual para ordenar el catalogo de esa forma //////////////////////////////////////////////////////////////////////////////////////////////
   useEffect(() => {
-    if (filter == "default") {
+    if (filter == "recientes") {
       //Ordena el catalogo por orden de creacion
       const sortedProducts = [...filteredProducts].sort((a, b) => {
         if (a.index < b.index) {
@@ -299,7 +304,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
       //Asigna los indices a mostrar en base al largo del catalogo en ese momento, esto hace que lo regrese a la primera pagina
       setIndicesToShow(generarArray(filteredSize - 1, productsToShow));
     }
-    if (filter == "menor") {
+    if (filter == "menor precio") {
       // Ordenar el catalogo según el valor de price de menor a mayor
       const sortedProducts = [...filteredProducts].sort(
         (a, b) => b.price - a.price
@@ -312,7 +317,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
       //Asigna los indices a mostrar en base al largo del catalogo en ese momento, esto hace que lo regrese a la primera pagina
       setIndicesToShow(generarArray(filteredSize - 1, productsToShow));
     }
-    if (filter == "mayor") {
+    if (filter == "mayor precio") {
       // Ordenar el catalogo según el valor de price de mayor a menor
       const sortedProducts = [...filteredProducts].sort(
         (a, b) => a.price - b.price
@@ -384,76 +389,6 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
       <div className=" flex">
         {/* Left container ////////////////////////////////////////////////////////////////////////////////////////////// */}
         <section className=" w-[250px] h-[800px] p-5 gap-6 flex flex-col">
-          {/* Search input*/}
-          <div>
-            Search
-            <input
-              type="text"
-              className="capitalize border mt-2"
-              onChange={handleFilter}
-            />
-          </div>
-
-          {/* Ordenar por container*/}
-          <div>
-            Ordenar por
-            <div className="w-full font-medium capitalize mt-2 select-none">
-              {/* Map de las categorias*/}
-              <div
-                className={
-                  !updateModal
-                    ? "flex flex-col  "
-                    : "text-gray-300 flex flex-col  pointer-events-none"
-                }
-              >
-                <div
-                  className={
-                    filter == "default"
-                      ? "cursor-pointer text-amber-500 w-fit mb-2 pointer-events-none"
-                      : "cursor-pointer hover:text-amber-500 w-fit mb-2"
-                  }
-                  onClick={() => {
-                    //Debo ponerlo aqui y en el useEffect para que funcione
-                    filteredProducts.sort((a, b) => {
-                      if (a.index < b.index) {
-                        return -1;
-                      }
-                    });
-                    setFilter("default");
-                  }}
-                >
-                  Nuevos
-                </div>
-                <div
-                  className={
-                    filter == "menor"
-                      ? "cursor-pointer text-amber-500 w-fit mb-2 pointer-events-none"
-                      : "cursor-pointer hover:text-amber-500 w-fit mb-2"
-                  }
-                  onClick={() => {
-                    //Debo ponerlo aqui y en el useEffect para que funcione
-                    filteredProducts.sort((a, b) => b.price - a.price);
-                    setFilter("menor");
-                  }}
-                >
-                  Menor Precio
-                </div>
-                <div
-                  className={
-                    filter == "mayor"
-                      ? "cursor-pointer text-amber-500 w-fit mb-2 pointer-events-none"
-                      : "cursor-pointer hover:text-amber-500 w-fit mb-2"
-                  }
-                  onClick={() => {
-                    setFilter("mayor");
-                  }}
-                >
-                  Mayor Precio
-                </div>
-              </div>
-            </div>
-          </div>
-
           {/* Categories container*/}
           <div>
             Categorias
@@ -578,7 +513,6 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
         {/* Right container ////////////////////////////////////////////////////////////////////////////////////////////// */}
         <section className=" flex-1 p-5">
           {/* Boton guardar */}
-
           {verifyMessage.map((item, index) => (
             <div
               key={index}
@@ -603,8 +537,90 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
             </div>
           ))}
 
+          <div className=" flex justify-between">
+            {/* Search input*/}
+            <div className=" flex">
+              <input
+                type="text"
+                className="capitalize bg-[#F9F9F9] border-[1px] text-[14px] pl-7 pr-12 py-3 w-[300px] focus:border-[#0989FF]  focus:outline-none"
+                onChange={handleFilter}
+                placeholder="Buscar productos..."
+              />
+              <div className="-ml-10 my-auto text-[#838383]">
+                <Search />
+              </div>
+            </div>
+            <div className=" w-[200px] bg-[#F9F9F9] border-[1px] text-[14px] flex capitalize relative select-none">
+              <div
+                onClick={() => {
+                  setSortMenu(!sortMenu);
+                }}
+                className=" flex justify-between w-full px-7 py-0 items-center cursor-pointer "
+              >
+                <div>{filter} </div>
+                <div
+                  className={
+                    sortMenu
+                      ? "transition-all -rotate-180 text-[#9f9f9f] duration-200"
+                      : "transition-all text-[#9f9f9f] duration-200"
+                  }
+                >
+                  <Arrow />
+                </div>
+              </div>
+
+              <div
+                className={
+                  sortMenu
+                    ? "w-full py-2 px-7 absolute bg-white border-[1px] top-12 z-50 flex flex-col"
+                    : "hidden"
+                }
+              >
+                <div
+                  className={
+                    filter == "recientes"
+                      ? "hidden"
+                      : "cursor-pointer hover:text-[#0989FF] py-2"
+                  }
+                  onClick={() => {
+                    setFilter("recientes");
+                    setSortMenu(!sortMenu);
+                  }}
+                >
+                  recientes
+                </div>
+                <div
+                  className={
+                    filter == "menor precio"
+                      ? "hidden"
+                      : "cursor-pointer hover:text-[#0989FF] py-2 "
+                  }
+                  onClick={() => {
+                    setFilter("menor precio");
+                    setSortMenu(!sortMenu);
+                  }}
+                >
+                  Menor Precio
+                </div>
+                <div
+                  className={
+                    filter == "mayor precio"
+                      ? "hidden"
+                      : "cursor-pointer hover:text-[#0989FF] py-2"
+                  }
+                  onClick={() => {
+                    setFilter("mayor precio");
+                    setSortMenu(!sortMenu);
+                  }}
+                >
+                  Mayor Precio
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Products container */}
-          <div className="grid grid-cols-3 gap-x-6 gap-y-10">
+          <div className="grid grid-cols-3 gap-x-6 gap-y-10 mt-10">
             {filteredProducts
               .map((item, index) => (
                 <div
