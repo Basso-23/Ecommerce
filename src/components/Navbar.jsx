@@ -74,7 +74,7 @@ const Navbar = ({
   }
 
   return (
-    <main className="pageSize fixed z-50  ">
+    <main className="fixed z-50 shadow-md w-full ">
       {/* Carrito ---------------------------------------------------------------------------------------------- */}
       {cartIsOpen ? (
         <>
@@ -91,7 +91,7 @@ const Navbar = ({
         </>
       ) : null}
 
-      <section className=" flex  justify-between h-[80px] items-center z-50 bg-white  ">
+      <section className=" pageSize flex  justify-between h-[80px] items-center z-50 bg-white mx-auto px-5  ">
         <div className=" flex gap-6">
           <Nav name={"Inicio"} url={"/"} />
           <Nav name={"Catalogo"} url={"/Catalogo"} />

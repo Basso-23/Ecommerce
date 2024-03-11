@@ -1,6 +1,6 @@
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
-import { animateScroll as scroll } from "react-scroll";
+import Star from "@/assets/icons/Star";
 import {
   collection,
   getDocs,
@@ -24,6 +24,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
   const [filteredSize, setFilteredSize] = useState(0); //Almacena el tamaño del catalogo
   const [indicesToShow, setIndicesToShow] = useState([]); //Almacena los indices de los productos que mostrara en el catalogo
   const [currentPage, setCurrentPage] = useState(1); //Contador para saber en que pagina del catalogo se encuentra
+  const [currentCategory, setCurrentCategory] = useState(""); //Almacena la categoria actual del catalogo
   //Guarda la data del form de CREAR un producto
   const [formData, setFormData] = useState({
     key: "",
@@ -45,7 +46,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
   });
 
   const scrollToTop = () => {
-    scroll.scrollToTop();
+    window.scrollTo(0, 0);
   };
 
   //Funcion que crea la key aleatoria requiere: (cantidad de caracteres que desea) //////////////////////////////////////////////////////////////////////////////////////////////
@@ -264,6 +265,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
 
   //Filtra el array con la categoria seleccionada //////////////////////////////////////////////////////////////////////////////////////////////
   const categorySelection = async (category) => {
+    setCurrentCategory(category);
     const filtered = catalogo.filter((item) =>
       item.category.includes(category)
     );
@@ -273,7 +275,11 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
 
     setFilter("default");
 
-    setCurrentPage(1);
+    //Esto hace que si le vuelvas a dar click a la misma category no te salga que volviste a la pagina 1
+    if (currentCategory != category) {
+      setCurrentPage(1);
+    }
+
     scrollToTop();
   };
 
@@ -396,12 +402,16 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
               <div
                 className={
                   !updateModal
-                    ? "flex flex-col gap-2 "
-                    : "text-gray-300 flex flex-col gap-2 pointer-events-none"
+                    ? "flex flex-col  "
+                    : "text-gray-300 flex flex-col  pointer-events-none"
                 }
               >
                 <div
-                  className=" cursor-pointer hover:text-amber-500 w-fit "
+                  className={
+                    filter == "default"
+                      ? "cursor-pointer text-amber-500 w-fit mb-2 pointer-events-none"
+                      : "cursor-pointer hover:text-amber-500 w-fit mb-2"
+                  }
                   onClick={() => {
                     //Debo ponerlo aqui y en el useEffect para que funcione
                     filteredProducts.sort((a, b) => {
@@ -415,7 +425,11 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                   Nuevos
                 </div>
                 <div
-                  className=" cursor-pointer hover:text-amber-500 w-fit "
+                  className={
+                    filter == "menor"
+                      ? "cursor-pointer text-amber-500 w-fit mb-2 pointer-events-none"
+                      : "cursor-pointer hover:text-amber-500 w-fit mb-2"
+                  }
                   onClick={() => {
                     //Debo ponerlo aqui y en el useEffect para que funcione
                     filteredProducts.sort((a, b) => b.price - a.price);
@@ -425,7 +439,11 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                   Menor Precio
                 </div>
                 <div
-                  className=" cursor-pointer hover:text-amber-500 w-fit "
+                  className={
+                    filter == "mayor"
+                      ? "cursor-pointer text-amber-500 w-fit mb-2 pointer-events-none"
+                      : "cursor-pointer hover:text-amber-500 w-fit mb-2"
+                  }
                   onClick={() => {
                     setFilter("mayor");
                   }}
@@ -439,10 +457,14 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
           {/* Categories container*/}
           <div>
             Categorias
-            <div className="w-full font-medium capitalize mt-2 max-h-[250px] overflow-y-auto">
+            <div className="w-full font-medium capitalize mt-2 max-h-[250px] overflow-y-auto select-none">
               {/* Todos los productos */}
               <div
-                className=" cursor-pointer hover:text-amber-500 w-fit mb-2 "
+                className={
+                  currentCategory == ""
+                    ? "cursor-pointer text-amber-500 w-fit mb-2 pointer-events-none"
+                    : "cursor-pointer hover:text-amber-500 w-fit mb-2"
+                }
                 onClick={() => {
                   categorySelection("");
                 }}
@@ -453,7 +475,11 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
               <div className="flex flex-col gap-2 ">
                 {categorias.map((item, index) => (
                   <div
-                    className=" cursor-pointer hover:text-amber-500 w-fit "
+                    className={
+                      currentCategory == item
+                        ? "cursor-pointer text-amber-500 w-fit mb-2 pointer-events-none"
+                        : "cursor-pointer hover:text-amber-500 w-fit mb-2"
+                    }
                     onClick={() => {
                       categorySelection(item);
                     }}
@@ -571,7 +597,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
               >
                 Guardar
               </div>
-              <div className="flex my-auto text-red-600 font-semibold uppercase text-sm">
+              <div className="flex my-auto text-red-600 font-semibold uppercase text-[16px]">
                 cambios sin guardar
               </div>
             </div>
@@ -682,21 +708,26 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                   {/* Info container */}
                   <div
                     className={
-                      tempKey != item.key
-                        ? "flex flex-col gap-2 mt-4"
-                        : "hidden"
+                      tempKey != item.key ? "flex flex-col mt-4" : "hidden"
                     }
                   >
                     {/* Category */}
-                    <div className=" text-sm text-zinc-400  capitalize">
+                    <div className=" text-[16px] text-zinc-400  capitalize ">
                       {item.category}
                     </div>
                     {/* Name */}
-                    <div className=" text-xl font-medium capitalize">
-                      {item.name}
+                    <div className=" text-[20px] capitalize">{item.name}</div>
+                    <div className="flex text-[#FFB21D] gap-[2px] mt-1">
+                      <Star />
+                      <Star />
+                      <Star />
+                      <Star />
+                      <Star />
                     </div>
                     {/* Price */}
-                    <div className="">${item.price.toFixed(2)}</div>
+                    <div className=" font-medium mt-3">
+                      ${item.price.toFixed(2)}
+                    </div>
                   </div>
                   {/* EDITAR producto form -------------------------------------------------------------------*/}
                   <div

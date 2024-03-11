@@ -1,4 +1,5 @@
 import "@/styles/globals.css";
+import "@fontsource-variable/jost";
 import Navbar from "@/components/Navbar";
 import React, { useState, useEffect } from "react";
 import { auth } from "@/firebase/firebase";
@@ -54,7 +55,10 @@ const App = ({ Component, pageProps, router }) => {
   }, [catalogo]);
 
   return (
-    <div className=" flex flex-col items-center ">
+    <div
+      style={{ fontFamily: "Jost Variable, sans-serif" }}
+      className=" flex flex-col items-center "
+    >
       <Navbar
         cart={cart}
         setCart={setCart}
