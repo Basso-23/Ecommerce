@@ -385,42 +385,62 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
   };
 
   return (
-    <main>
+    <main className="p-5 mt-16">
+      <div className="text-[44px] font-medium">Catálogo de Productos</div>
+      <div className=" tracking-wide text-[16px] flex gap-1 mb-12 text-[#555860]">
+        <div>Inicio</div> <div>/</div> <div>Catálogo</div>
+      </div>
       <div className=" flex">
         {/* Left container ////////////////////////////////////////////////////////////////////////////////////////////// */}
-        <section className=" w-[250px] h-[800px] p-5 gap-6 flex flex-col">
+        <section className=" w-[250px] h-[800px] gap-6 flex flex-col pr-5">
           {/* Categories container*/}
           <div>
-            Categorias
-            <div className="w-full font-medium capitalize mt-2 max-h-[250px] overflow-y-auto select-none">
-              {/* Todos los productos */}
+            <div className=" text-[18px] font-medium border-b pb-1 mb-6 tracking-wide">
+              Categorias
+            </div>
+            <div className="w-full text-[15px] capitalize mt-2 max-h-[250px] overflow-y-auto select-none tracking-wide">
+              {/* Categoria All */}
               <div
                 className={
                   currentCategory == ""
-                    ? "cursor-pointer text-amber-500 w-fit mb-2 pointer-events-none"
-                    : "cursor-pointer hover:text-amber-500 w-fit mb-2"
+                    ? "cursor-pointer  w-fit mb-3 pointer-events-none text-[#0989FF] flex gap-3"
+                    : "cursor-pointer hover:text-[#0989FF] w-fit mb-3 text-[#747474] flex  gap-3"
                 }
                 onClick={() => {
                   categorySelection("");
                 }}
               >
-                All
+                <div
+                  className={
+                    currentCategory == ""
+                      ? "w-[5px] h-[5px] rounded-full bg-[#0989FF] my-auto"
+                      : "w-[5px] h-[5px] rounded-full bg-[#d5d5d5] my-auto"
+                  }
+                ></div>
+                <div>All</div>
               </div>
               {/* Map de las categorias*/}
-              <div className="flex flex-col gap-2 ">
+              <div className="flex flex-col gap-3 ">
                 {categorias.map((item, index) => (
                   <div
                     className={
                       currentCategory == item
-                        ? "cursor-pointer text-amber-500 w-fit mb-2 pointer-events-none"
-                        : "cursor-pointer hover:text-amber-500 w-fit mb-2"
+                        ? "cursor-pointer text-[#0989FF] w-fit pointer-events-none flex gap-3"
+                        : "cursor-pointer hover:text-[#0989FF] w-fit text-[#747474] flex gap-3"
                     }
                     onClick={() => {
                       categorySelection(item);
                     }}
                     key={index}
                   >
-                    {item}
+                    <div
+                      className={
+                        currentCategory == item
+                          ? "w-[5px] h-[5px] rounded-full bg-[#0989FF] my-auto"
+                          : "w-[5px] h-[5px] rounded-full bg-[#d5d5d5] my-auto"
+                      }
+                    ></div>
+                    <div>{item}</div>
                   </div>
                 ))}
               </div>
@@ -511,7 +531,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
           </div>
         </section>
         {/* Right container ////////////////////////////////////////////////////////////////////////////////////////////// */}
-        <section className=" flex-1 p-5">
+        <section className=" flex-1 pl-5">
           {/* Boton guardar */}
           {verifyMessage.map((item, index) => (
             <div
@@ -550,7 +570,9 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                 <Search />
               </div>
             </div>
+            {/* Ordenar por container*/}
             <div className=" w-[200px] bg-[#F9F9F9] border-[1px] text-[14px] flex capitalize relative select-none">
+              {/* Filtro actual y arrow*/}
               <div
                 onClick={() => {
                   setSortMenu(!sortMenu);
@@ -568,7 +590,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                   <Arrow />
                 </div>
               </div>
-
+              {/* Listas de opciones de ordenar*/}
               <div
                 className={
                   sortMenu
@@ -576,10 +598,11 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                     : "hidden"
                 }
               >
+                {/* Recientes*/}
                 <div
                   className={
                     filter == "recientes"
-                      ? "hidden"
+                      ? " font-bold pointer-events-none py-2"
                       : "cursor-pointer hover:text-[#0989FF] py-2"
                   }
                   onClick={() => {
@@ -589,10 +612,11 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                 >
                   recientes
                 </div>
+                {/* Menor Precio*/}
                 <div
                   className={
                     filter == "menor precio"
-                      ? "hidden"
+                      ? " font-bold pointer-events-none py-2"
                       : "cursor-pointer hover:text-[#0989FF] py-2 "
                   }
                   onClick={() => {
@@ -602,10 +626,11 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                 >
                   Menor Precio
                 </div>
+                {/* Mayor Precio*/}
                 <div
                   className={
                     filter == "mayor precio"
-                      ? "hidden"
+                      ? " font-bold pointer-events-none py-2"
                       : "cursor-pointer hover:text-[#0989FF] py-2"
                   }
                   onClick={() => {
@@ -638,7 +663,7 @@ const Catalogo = ({ catalogo, setCatalogo, userState }) => {
                     }}
                   >
                     {/* Image */}
-                    <div className=" w-full h-[350px] justify-center items-center flex bg-[#F1F4F6] shadow-sm relative ">
+                    <div className=" w-full aspect-[10/11] justify-center items-center flex bg-[#F1F4F6] shadow-sm relative ">
                       <div
                         style={{ backgroundImage: `url(${item.image})` }}
                         className=" bg-contain bg-no-repeat mb-2 w-full h-full bg-center"
