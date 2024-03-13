@@ -232,7 +232,6 @@ const CrearUsuario = () => {
       </section>
 
       {/*//SECTION: Form edit container // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // */}
-
       {updateModal ? (
         <section className=" fixed top-[600px] left-5 w-80 h-32 grid grid-cols-2 justify-center items-center z-50 text-center gap-5 select-none">
           <form onSubmit={handleSubmitEdit}>
