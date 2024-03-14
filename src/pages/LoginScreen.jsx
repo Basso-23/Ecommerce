@@ -1,84 +1,42 @@
 import React, { useState, useEffect, useRef } from "react";
 import InputForm from "@/components/InputForm";
-import { db } from "@/firebase/firebase";
 import { keyMaker } from "@/components/keyMaker";
 import {
-  collection,
-  getDocs,
-  query,
-  orderBy,
-  setDoc,
-  doc,
-  deleteDoc,
-  updateDoc,
-} from "firebase/firestore";
+  firebase_delete,
+  firebase_edit,
+  firebase_read,
+  firebase_write,
+} from "@/firebase/firebase";
 
 const CrearUsuario = () => {
   const [tempKey, setTempKey] = useState("");
   const [deleteModal, setDeleteModal] = useState(false);
   const [updateModal, setUpdateModal] = useState(false);
   const [data, setData] = useState([]);
+
   const [formInfo, setFormInfo] = useState({
     nombre: "",
     apellido: "",
   });
+
   const [editInfo, setEditInfo] = useState({
     nombre: "",
     apellido: "",
   });
 
-  //FUNCTION: Almacena los datos a la BD requiere: (nombre de la coleccion, info a guardar)
-  const firebase_write = async (coleccion, info) => {
-    //* Guardar los datos en Firestore
-    await setDoc(doc(db, coleccion, info.key), info);
-
-    //* Lee y asigna los datos de la base de datos requiere: (nombre de la coleccion, variable donde guardar los datos, orden al guardar)
-    firebase_read("usuarios", setData, "index");
-  };
-
-  //FUNCTION: Lee y asigna los datos de la BD requiere: (nombre de la coleccion, variable donde guardar los datos, orden al guardar)
-  const firebase_read = async (coleccion, save, order) => {
-    await getDocs(
-      query(collection(db, coleccion), orderBy(order, "desc"))
-    ).then((querySnapshot) => {
-      const newData = querySnapshot.docs.map((doc) => ({
-        ...doc.data(),
-        id: doc.id,
-      }));
-      //* Asigna los datos leídos de la base de datos
-      save(newData);
-    });
-  };
-
-  //FUNCTION: Borra el dato seleccionado de la BD requiere: (nombre de la coleccion y la key del producto)
-  const firebase_delete = async (coleccion, key) => {
-    await deleteDoc(doc(db, coleccion, key));
-    console.log("Articulo borrado", key);
-    //* Lee y asigna los datos de la base de datos requiere: (nombre de la coleccion, variable donde guardar los datos, orden al guardar)
-    firebase_read("usuarios", setData, "index");
-  };
-
-  //FUNCTION: Actualiza el dato seleccionado de la BD requiere: (nombre de la coleccion y la key del producto)
-  const firebase_edit = async (coleccion, info) => {
-    await updateDoc(doc(db, coleccion, tempKey), info);
-
-    //* Lee y asigna los datos de la base de datos requiere: (nombre de la coleccion, variable donde guardar los datos, orden al guardar)
-    firebase_read("usuarios", setData, "index");
-  };
-
   //FUNCTION: Lee la base de datos al cargar la pagina
   useEffect(() => {
-    //* Lee y asigna los datos de la base de datos requiere: (nombre de la coleccion, variable donde guardar los datos, orden al guardar)
+    //* Lee y asigna los datos de la BD requiere: (nombre de la coleccion, variable donde guardar los datos y nombre del campo por el que se ordenara)
     firebase_read("usuarios", setData, "index");
   }, []);
 
-  //FUNCTION: Maneja el onChange los input
+  //FUNCTION: Maneja el onChange los input de CREAR
   const handleChange = (event) => {
     const { name, value } = event.target;
     setFormInfo((prevState) => ({ ...prevState, [name]: value }));
   };
 
-  //FUNCTION: Maneja el submit del form
+  //FUNCTION: Maneja el submit del form CREAR
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -97,21 +55,21 @@ const CrearUsuario = () => {
       apellido: formInfo.apellido,
     };
 
-    //* Almacena los datos en Firestore requiere: (nombre de la coleccion, info a guardar)
-    firebase_write("usuarios", info);
+    //* Almacena los datos a la BD requiere: (nombre de la coleccion, info a guardar, variable donde guardar los datos y nombre del campo por el que se ordenara)
+    firebase_write("usuarios", info, setData, "index");
 
     //* Limpiar los campos después de enviar los datos
     formInfo.nombre = "";
     formInfo.apellido = "";
   };
 
-  //FUNCTION: Maneja el onChange los input del edit
+  //FUNCTION: Maneja el onChange los input de EDIT
   const handleChangeEdit = (event) => {
     const { name, value } = event.target;
     setEditInfo((prevState) => ({ ...prevState, [name]: value }));
   };
 
-  //FUNCTION: Maneja el submit del form de edit
+  //FUNCTION: Maneja el submit del form EDIT
   const handleSubmitEdit = async (event) => {
     event.preventDefault();
 
@@ -124,8 +82,8 @@ const CrearUsuario = () => {
       apellido: editInfo.apellido,
     };
 
-    //* Almacena los datos en Firestore requiere: (nombre de la coleccion, info a guardar)
-    firebase_edit("usuarios", info);
+    //* Actualiza el dato seleccionado de la BD requiere: (nombre de la coleccion, key del campo a editar, info a guardar, variable donde guardar los datos y nombre del campo por el que se ordenara)
+    firebase_edit("usuarios", tempKey, info, setData, "index");
 
     //* Limpiar los campos después de enviar los datos
     editInfo.nombre = "";
@@ -257,7 +215,8 @@ const CrearUsuario = () => {
                   <div className="  absolute w-full  grid grid-cols-2 gap-6 text-center tracking-wide">
                     <div
                       onClick={() => {
-                        firebase_delete("usuarios", tempKey);
+                        //Borra el dato seleccionado de la BD requiere: (nombre de la coleccion, key del campo a borrar, variable donde guardar los datos y nombre del campo por el que se ordenara)
+                        firebase_delete("usuarios", tempKey, setData, "index");
                         setDeleteModal(false);
                       }}
                       className=" bg-lime-500 text-white py-1 cursor-pointer"
