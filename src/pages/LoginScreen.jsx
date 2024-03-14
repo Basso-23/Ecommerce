@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import InputForm from "@/components/InputForm";
 import { db } from "@/firebase/firebase";
+import { keyMaker } from "@/components/keyMaker";
 import {
   collection,
   getDocs,
@@ -26,20 +27,6 @@ const CrearUsuario = () => {
     apellido: "",
   });
 
-  //FUNCTION: Crea la key aleatoria requiere: (cantidad de caracteres que desea)
-  function keyMaker(length) {
-    let result = "";
-    const characters =
-      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    const charactersLength = characters.length;
-    let counter = 0;
-    while (counter < length) {
-      result += characters.charAt(Math.floor(Math.random() * charactersLength));
-      counter += 1;
-    }
-    return result;
-  }
-
   //FUNCTION: Almacena los datos a la BD requiere: (nombre de la coleccion, info a guardar)
   const firebase_write = async (coleccion, info) => {
     //* Guardar los datos en Firestore
@@ -51,16 +38,16 @@ const CrearUsuario = () => {
 
   //FUNCTION: Lee y asigna los datos de la BD requiere: (nombre de la coleccion, variable donde guardar los datos, orden al guardar)
   const firebase_read = async (coleccion, save, order) => {
-    await getDocs(query(collection(db, coleccion), orderBy(order))).then(
-      (querySnapshot) => {
-        const newData = querySnapshot.docs.map((doc) => ({
-          ...doc.data(),
-          id: doc.id,
-        }));
-        //* Asigna los datos leídos de la base de datos
-        save(newData);
-      }
-    );
+    await getDocs(
+      query(collection(db, coleccion), orderBy(order, "desc"))
+    ).then((querySnapshot) => {
+      const newData = querySnapshot.docs.map((doc) => ({
+        ...doc.data(),
+        id: doc.id,
+      }));
+      //* Asigna los datos leídos de la base de datos
+      save(newData);
+    });
   };
 
   //FUNCTION: Borra el dato seleccionado de la BD requiere: (nombre de la coleccion y la key del producto)
@@ -72,7 +59,7 @@ const CrearUsuario = () => {
   };
 
   //FUNCTION: Actualiza el dato seleccionado de la BD requiere: (nombre de la coleccion y la key del producto)
-  const firebase_update = async (coleccion, info) => {
+  const firebase_edit = async (coleccion, info) => {
     await updateDoc(doc(db, coleccion, tempKey), info);
 
     //* Lee y asigna los datos de la base de datos requiere: (nombre de la coleccion, variable donde guardar los datos, orden al guardar)
@@ -138,7 +125,7 @@ const CrearUsuario = () => {
     };
 
     //* Almacena los datos en Firestore requiere: (nombre de la coleccion, info a guardar)
-    firebase_update("usuarios", info);
+    firebase_edit("usuarios", info);
 
     //* Limpiar los campos después de enviar los datos
     editInfo.nombre = "";
@@ -146,115 +133,152 @@ const CrearUsuario = () => {
   };
 
   return (
-    <main>
+    <main className=" mt-10">
       {/*//SECTION: Form container // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // */}
       <section>
-        <form onSubmit={handleSubmit}>
+        <form className="flex gap-5 items-center" onSubmit={handleSubmit}>
           <label>
-            Nombre:
             <InputForm
               name="nombre"
               value={formInfo.nombre}
+              placeholder={"Nombre"}
               onChange={handleChange}
             />
           </label>
           <label>
-            Apellido:
             <InputForm
               name="apellido"
               value={formInfo.apellido}
+              placeholder={"Apellido"}
               onChange={handleChange}
             />
           </label>
-          <button type="submit">Crear Usuario</button>
+          <button
+            className=" px-10 py-1 bg-lime-500 text-white uppercase tracking-wide active:scale-95 transition-all"
+            type="submit"
+          >
+            Crear Usuario
+          </button>
         </form>
       </section>
 
       {/*//SECTION: Map de los datos // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // */}
       <section>
         <div className=" mt-20 flex flex-col gap-10">
-          {data
-            .map((item, index) => (
-              <div key={index} className=" flex gap-5">
-                <div>
-                  {item.nombre} - {item.index}
+          {data.map((item, index) => (
+            <div className=" w-fit" key={index}>
+              <form
+                className=" flex gap-5 relative"
+                onSubmit={handleSubmitEdit}
+              >
+                <div className="w-[500px] grid grid-cols-3">
+                  {updateModal && tempKey == item.key ? (
+                    <>
+                      <label>
+                        <InputForm
+                          name="nombre"
+                          value={editInfo.nombre}
+                          placeholder={item.nombre}
+                          onChange={handleChangeEdit}
+                        />
+                      </label>
+                      <label>
+                        <InputForm
+                          name="apellido"
+                          value={editInfo.apellido}
+                          placeholder={item.apellido}
+                          onChange={handleChangeEdit}
+                        />
+                      </label>
+                    </>
+                  ) : (
+                    <>
+                      <div className="border-b border-transparent">
+                        {item.nombre}
+                      </div>
+                      <div className="border-b border-transparent">
+                        {item.apellido}
+                      </div>
+                    </>
+                  )}
+                  <div>{item.index}</div>
                 </div>
+
+                {updateModal && tempKey == item.key ? (
+                  <>
+                    <button
+                      type="submit"
+                      className=" cursor-pointer select-none"
+                    >
+                      ✅
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <div
+                      onClick={() => {
+                        setTempKey(item.key);
+                        setUpdateModal(!updateModal);
+                      }}
+                      className={
+                        updateModal || deleteModal
+                          ? " pointer-events-none grayscale select-none"
+                          : "cursor-pointer select-none"
+                      }
+                    >
+                      ✏️
+                    </div>
+                  </>
+                )}
                 <div
                   onClick={() => {
                     setTempKey(item.key);
                     setDeleteModal(true);
                   }}
-                  className=" cursor-pointer select-none"
+                  className={
+                    updateModal || deleteModal
+                      ? " pointer-events-none grayscale select-none"
+                      : "cursor-pointer select-none"
+                  }
                 >
                   🗑️
                 </div>
-                <div
-                  onClick={() => {
-                    setTempKey(item.key);
-                    setUpdateModal(!updateModal);
-                  }}
-                  className=" cursor-pointer select-none"
-                >
-                  ✏️
-                </div>
-              </div>
-            ))
-            .reverse()}
+                {updateModal && tempKey == item.key ? (
+                  <button
+                    onClick={() => {
+                      setUpdateModal(false);
+                    }}
+                    className=" cursor-pointer select-none font-medium  tracking-wide text-rose-600 "
+                  >
+                    CLOSE
+                  </button>
+                ) : null}
+                {deleteModal && tempKey == item.key ? (
+                  <div className="  absolute w-full  grid grid-cols-2 gap-6 text-center tracking-wide">
+                    <div
+                      onClick={() => {
+                        firebase_delete("usuarios", tempKey);
+                        setDeleteModal(false);
+                      }}
+                      className=" bg-lime-500 text-white py-1 cursor-pointer"
+                    >
+                      CONFIRMAR
+                    </div>
+                    <div
+                      onClick={() => {
+                        setDeleteModal(false);
+                      }}
+                      className=" bg-rose-600  text-white py-1 cursor-pointer"
+                    >
+                      CANCELAR
+                    </div>
+                  </div>
+                ) : null}
+              </form>
+            </div>
+          ))}
         </div>
       </section>
-
-      {/*//SECTION: Modal de confirmar delete // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // */}
-      <section>
-        {deleteModal ? (
-          <div className=" fixed top-96 left-5 w-80 h-32 grid grid-cols-2 justify-center items-center z-50 text-center gap-5 select-none">
-            <div className=" absolute top-0 fixedCenterX w-full">
-              Confirmas que quieres borrar este elemento?
-            </div>
-            <div
-              onClick={() => {
-                firebase_delete("usuarios", tempKey);
-                setDeleteModal(false);
-              }}
-              className=" bg-lime-400 text-white py-1 cursor-pointer"
-            >
-              SI
-            </div>
-            <div
-              onClick={() => {
-                setDeleteModal(false);
-              }}
-              className=" bg-rose-600  text-white py-1 cursor-pointer"
-            >
-              CANCELAR
-            </div>
-          </div>
-        ) : null}
-      </section>
-
-      {/*//SECTION: Form edit container // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // */}
-      {updateModal ? (
-        <section className=" fixed top-[600px] left-5 w-80 h-32 grid grid-cols-2 justify-center items-center z-50 text-center gap-5 select-none">
-          <form onSubmit={handleSubmitEdit}>
-            <label>
-              Nombre:
-              <InputForm
-                name="nombre"
-                value={editInfo.nombre}
-                onChange={handleChangeEdit}
-              />
-            </label>
-            <label>
-              Apellido:
-              <InputForm
-                name="apellido"
-                value={editInfo.apellido}
-                onChange={handleChangeEdit}
-              />
-            </label>
-            <button type="submit">Guardar</button>
-          </form>
-        </section>
-      ) : null}
     </main>
   );
 };
